@@ -16,20 +16,31 @@ def get_hero_dict() -> dict:
 HERO_DICT = get_hero_dict()
 
 
+def get_nick(player_id: int):
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
+    profile = json.loads(response.text)
+
+    return profile["profile"]["personaname"]
+
+
 def is_radiant(player_slot: int) -> bool:
-    return 0 <= player_slot <= 128
+    return 0 <= player_slot <= 127
 
 
 def stats(player_id: int) -> str:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
 
+    string = "**Ultimos 5 games de " + get_nick(player_id) + "\n"
+    string += ("-" * 38) + "**"
+
     for match in recent_matches[:5]:
         radiant = is_radiant(match["player_slot"])
-        wl = "Gano" if radiant == match["radiant_win"] else "Perdio"
-        print(wl, end="  ")
-        print(HERO_DICT[match["hero_id"]], end="  ")
-        print(str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"]))
+        wl = "\n:green_circle:   Gano" if radiant == match["radiant_win"] else " \n:red_circle:   Perdio "
+        string += wl + " con **"
+        string += HERO_DICT[match["hero_id"]] + "** y salio **"
+        string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"]) + '**'
 
+    string += ""
 
-stats(134129467)
+    return string
