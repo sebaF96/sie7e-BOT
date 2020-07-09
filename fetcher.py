@@ -39,7 +39,7 @@ def format_duration(duration: int) -> str:
 
 def format_time_ago(timestamp):
     time_now = int(time.time())
-    time_ago = time_now - timestamp - 200
+    time_ago = time_now - timestamp - 500
 
     if time_ago < 0:
         return "recien."
@@ -54,9 +54,9 @@ def format_time_ago(timestamp):
 
     if time_ago >= 60:
         minutes = int(time_ago / 60)
-        return "hace " + str(minutes) + "min aprox."
+        return "hace " + str(minutes) + " min aprox."
 
-    return "hace " + time_ago + "seg aprox."
+    return "hace " + time_ago + " seg aprox."
 
 
 def stats(player_id: int) -> str:

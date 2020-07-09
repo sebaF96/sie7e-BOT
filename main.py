@@ -11,7 +11,7 @@ client = discord.Client()
 
 players = {'gonza': 324686074, 'seba': 179677205, 'gena': 134129467, 'pancho': 137703388, 'yair': 156552375,
            'pela': 130817647,
-           'chino': 0, 'statham': 0, 'lucas': 0, 'snoop': 354096578, 'negro': 140411170}
+           'chino': 135179013, 'statham': 145875771, 'lucas': 275221784, 'snoop': 354096578, 'negro': 140411170}
 
 
 @client.event
