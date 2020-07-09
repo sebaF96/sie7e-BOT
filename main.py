@@ -1,6 +1,11 @@
 import discord
 
-token = 'NzMwNjcwNTU4NjM4NzY4MTc4.Xwa4Eg.s_J17XYdlUtfslxx3D98XDuZJXo'
+
+def read_token():
+    with open('token.txt', 'r') as f:
+        return f.readline().strip()
+
+
 client = discord.Client()
 
 
@@ -15,5 +20,5 @@ async def on_message(message):
     if message.content.startswith('$pelado'):
         await message.channel.send('Ese fedeo toda la noche junto con pancho_toni')
 
-client.run(token)
+client.run(read_token())
 
