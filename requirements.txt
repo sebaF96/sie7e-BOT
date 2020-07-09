@@ -7,7 +7,6 @@ discord.py==1.3.4
 idna==2.10
 idna-ssl==1.1.0
 multidict==4.7.6
-pkg-resources==0.0.0
 requests==2.24.0
 typing-extensions==3.7.4.2
 urllib3==1.25.9
