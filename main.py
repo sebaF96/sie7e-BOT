@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help, refresh
+from fetcher import stats, show_help, refresh, get_nick, w_l
 
 
 def read_token():
@@ -41,7 +41,24 @@ async def on_message(message):
             refresh(players[message.content.split()[1]])
             await message.channel.send("Ok")
 
+    if message.content.startswith('!players'):
+        string = ""
+        for key in players:
+            try:
+                string += key + " **(" + get_nick(players[key]) + ")**\n"
+            except KeyError:
+                continue
 
+        await message.channel.send(string)
 
+    if message.content.startswith('!wl') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese")
+        else:
+            try:
+                await message.channel.send(w_l(players[message.content.split()[1]]))
+            except KeyError:
+                await message.channel.send("Tiene el perfil privado esa caquita")
+        
 
 client.run(read_token())

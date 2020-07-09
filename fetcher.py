@@ -61,3 +61,19 @@ def show_help() -> str:
 
 def refresh(player_id: int):
     r = requests.post(' https://api.opendota.com/api/players/' + str(player_id) + '/refresh')
+
+
+def w_l(player_id: int) -> str:
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
+    recent_matches = json.loads(response.text)
+    wins = 0
+    defeats = 0
+
+    for match in recent_matches:
+        if is_radiant(match['player_slot']) == match['radiant_win']:
+            wins += 1
+        else:
+            defeats += 1
+    string = "W - L de " + get_nick(player_id) + ": **" + str(wins) + " - " + str(defeats) + "**"
+
+    return string
