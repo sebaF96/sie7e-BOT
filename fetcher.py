@@ -1,5 +1,6 @@
 import json
 import requests
+import time
 
 
 def get_hero_dict() -> dict:
@@ -25,6 +26,37 @@ def get_nick(player_id: int):
 
 def is_radiant(player_slot: int) -> bool:
     return 0 <= player_slot <= 127
+
+
+def format_duration(duration: int) -> str:
+    seconds = duration % 60
+    minutes = (duration - seconds) // 60
+    if seconds < 10:
+        seconds = '0' + str(seconds)
+
+    return str(minutes) + ':' + str(seconds)
+
+
+def format_time_ago(timestamp):
+    time_now = int(time.time())
+    time_ago = time_now - timestamp - 200
+
+    if time_ago < 0:
+        return "recien."
+
+    if time_ago >= 86400:
+        days = int(time_ago / 86400)
+        return "hace " + str(days) + "d aprox."
+
+    if time_ago >= 3600:
+        hours = int(time_ago / 3600)
+        return "hace " + str(hours) + "h aprox."
+
+    if time_ago >= 60:
+        minutes = int(time_ago / 60)
+        return "hace " + str(minutes) + "min aprox."
+
+    return "hace " + time_ago + "seg aprox."
 
 
 def stats(player_id: int) -> str:
@@ -75,5 +107,32 @@ def w_l(player_id: int) -> str:
         else:
             defeats += 1
     string = "W - L de " + get_nick(player_id) + ": **" + str(wins) + " - " + str(defeats) + "**"
+
+    return string
+
+
+def last(player_id: int) -> str:
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
+    recent_matches = json.loads(response.text)
+    match = recent_matches[0]
+    radiant = is_radiant(match['player_slot'])
+
+    string = "**Ultimo game de " + get_nick(player_id) + "** \n"
+    wl = ":green_circle:  Gano" if radiant == match["radiant_win"] else ":red_circle:  Perdio "
+    string += wl + " con **"
+    string += HERO_DICT[match["hero_id"]] + "** "
+    string += format_time_ago(match["start_time"] + match["duration"]) + "\n\n"
+
+    string += "** KDA: ** `" + str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"]) + "`\n"
+    string += "** Duracion: ** `" + format_duration(match["duration"]) + "`\n"
+    string += "** Last Hits: ** `" + str(match["last_hits"]) + "`\n"
+    string += "** OPM: ** `" + str(match["gold_per_min"]) + "`\n"
+    string += "** EPM: ** `" + str(match["xp_per_min"]) + "`\n"
+    string += "** Daño: ** `" + str(match["hero_damage"]) + "`\n"
+    string += "** Daño a torres: ** `" + str(match["tower_damage"]) + "`\n"
+    string += "** Curacion: ** `" + str(match["hero_healing"]) + "`\n"
+
+
+    string += ""
 
     return string

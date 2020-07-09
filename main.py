@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l
+from fetcher import stats, show_help, refresh, get_nick, w_l, last
 
 
 def read_token():
@@ -24,7 +24,7 @@ async def on_message(message):
 
     if message.content.startswith('!stats') and len(message.content.split()) > 1:
         if message.content.split()[1] not in players:
-            await message.channel.send("Ni idea quien es ese")
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
                 await message.channel.send(stats(players[message.content.split()[1]]))
@@ -36,10 +36,10 @@ async def on_message(message):
 
     if message.content.startswith('!refresh') and len(message.content.split()) > 1:
         if message.content.split()[1] not in players:
-            await message.channel.send("Ni idea quien es ese")
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             refresh(players[message.content.split()[1]])
-            await message.channel.send("Ok")
+            await message.channel.send("Ok (aguanta 1 toque)")
 
     if message.content.startswith('!players'):
         string = ""
@@ -53,12 +53,20 @@ async def on_message(message):
 
     if message.content.startswith('!wl') and len(message.content.split()) > 1:
         if message.content.split()[1] not in players:
-            await message.channel.send("Ni idea quien es ese")
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
                 await message.channel.send(w_l(players[message.content.split()[1]]))
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
-        
+
+    if message.content.startswith('!last') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+        else:
+            try:
+                await message.channel.send(last(players[message.content.split()[1]]))
+            except KeyError:
+                await message.channel.send("Tiene el perfil privado esa caquita")
 
 client.run(read_token())
