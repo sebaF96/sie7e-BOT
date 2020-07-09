@@ -58,3 +58,6 @@ def show_help() -> str:
 
     return string
 
+
+def refresh(player_id: int):
+    r = requests.post(' https://api.opendota.com/api/players/' + str(player_id) + '/refresh')

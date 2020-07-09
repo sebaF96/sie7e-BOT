@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help
+from fetcher import stats, show_help, refresh
 
 
 def read_token():
@@ -33,6 +33,15 @@ async def on_message(message):
 
     if message.content.startswith('!help'):
         await message.channel.send(show_help())
+
+    if message.content.startswith('!refresh') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese")
+        else:
+            refresh(players[message.content.split()[1]])
+            await message.channel.send("Ok")
+
+
 
 
 client.run(read_token())
