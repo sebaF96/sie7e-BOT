@@ -45,8 +45,11 @@ async def on_message(message):
         string = ""
         for key in players:
             try:
-                string += key + " **(" + get_nick(players[key]) + ")**\n"
-            except KeyError:
+                name = get_nick(players[key])
+                if name is None:
+                    continue
+                string += key + " **(" + str(name) + ")**\n"
+            except KeyError or TypeError:
                 continue
 
         await message.channel.send(string)
