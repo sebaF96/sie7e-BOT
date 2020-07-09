@@ -44,3 +44,17 @@ def stats(player_id: int) -> str:
     string += ""
 
     return string
+
+
+def show_help() -> str:
+    string = "** COMANDOS **\n"
+    string += "**`!help`** --> muestra este mensaje\n"
+    string += "**`!players`** --> muestra los players de los q podes ver la data\n"
+    string += "**`!stats <player>`** --> muestra las ultimas 5 partidas de ese player\n"
+    string += "**`!wl <player>`** --> muestra el W - L de las ultimas 20 partidas de ese player\n"
+    string += "**`!refresh <player>`** --> actualiza las estadisticas de ese player\n"
+    string += "**`!last <player>`** ---> muestra la ultima partida de ese player"
+
+
+    return string
+
