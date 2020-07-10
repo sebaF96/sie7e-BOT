@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank
 
 
 def read_token():
@@ -88,5 +88,9 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
+    if message.content.startswith('!wins'):
+        string = wins_rank(players)
+
+        await message.channel.send(string)
 
 client.run(read_token())

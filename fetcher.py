@@ -183,3 +183,35 @@ def total(player_id: int) -> str:
     string += ""
 
     return string
+
+
+def wins_rank(players: dict) -> str:
+    rank_list = []
+
+    for player in players:
+        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=7')
+        wins = json.loads(r.text)["win"]
+
+        try:
+            player_name = get_nick(players[player])
+        except KeyError:
+            continue
+
+        rank_list.append((player_name, str(wins)))
+
+    rank_list.sort(key=lambda t: int(t[1]), reverse=True)
+
+    string = "**Top victorias (5 dias) \n"
+    string += ("-" * 30) + "** \n"
+
+
+
+    string += ":first_place: **`" + rank_list[0][1] + " wins`** --> **" + str(rank_list[0][0]) + "** \n"
+    string += ":second_place: **`" + rank_list[1][1] + " wins`** --> **" + str(rank_list[1][0]) + "** \n"
+    string += ":third_place: **`" + rank_list[2][1] + " wins`** --> **" + str(rank_list[2][0]) + "** \n"
+    string += "       **`" + rank_list[3][1] + " wins`** --> **" + str(rank_list[3][0]) + "** \n"
+    string += "       **`" + rank_list[4][1] + " wins`** --> **" + str(rank_list[4][0]) + "** \n"
+    string += "       **`" + rank_list[5][1] + " wins`** --> **" + str(rank_list[5][0]) + "** \n"
+
+
+    return string
