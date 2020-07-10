@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg
 
 
 def read_token():
@@ -46,8 +46,6 @@ async def on_message(message):
         for key in players:
             try:
                 name = get_nick(players[key])
-                if name is None:
-                    continue
                 string += key + " **(" + str(name) + ")**\n"
             except KeyError or TypeError:
                 continue
@@ -71,5 +69,15 @@ async def on_message(message):
                 await message.channel.send(last(players[message.content.split()[1]]))
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
+
+    if message.content.startswith('!avg') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+        else:
+            try:
+                await message.channel.send(avg(players[message.content.split()[1]]))
+            except KeyError:
+                await message.channel.send("Tiene el perfil privado esa caquita")
+
 
 client.run(read_token())

@@ -18,6 +18,11 @@ HERO_DICT = get_hero_dict()
 
 
 def get_nick(player_id: int):
+    if player_id == 130817647:
+        return "pela"
+    if player_id == 275221784:
+        return "lucas"
+
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
 
@@ -85,8 +90,10 @@ def show_help() -> str:
     string += "**`!stats <player>`** --> muestra las ultimas 5 partidas de ese player\n"
     string += "**`!wl <player>`** --> muestra el W - L de las ultimas 20 partidas de ese player\n"
     string += "**`!refresh <player>`** --> actualiza las estadisticas de ese player\n"
-    string += "**`!last <player>`** ---> muestra la ultima partida de ese player"
-
+    string += "**`!last <player>`** ---> muestra la ultima partida de ese player\n"
+    string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
+    string += "**`!total <player>`** ---> muestra los totales de ese player\n"
+    string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 5 dias\n"
 
     return string
 
@@ -132,6 +139,27 @@ def last(player_id: int) -> str:
     string += "** Daño a torres: ** `" + str(match["tower_damage"]) + "`\n"
     string += "** Curacion: ** `" + str(match["hero_healing"]) + "`\n"
 
+    string += ""
+
+    return string
+
+
+def avg(player_id: int) -> str:
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals?limit=20')
+    totals = json.loads(response.text)
+
+    string = "**Promedios de " + get_nick(player_id) + "\n"
+    string += ("-" * 31) + "** \n"
+
+    string += "** Kills: ** `" + str(totals[0]["sum"] / 20) + "`\n"
+    string += "** Muertes: ** `" + str(totals[1]["sum"] / 20) + "`\n"
+    string += "** Assists: ** `" + str(totals[2]["sum"] / 20) + "`\n"
+    string += "** OPM: ** `" + str(round(totals[4]["sum"] / 20)) + "`\n"
+    string += "** EPM: ** `" + str(round(totals[5]["sum"] / 20)) + "`\n"
+    string += "** Last Hits: ** `" + str(round(totals[6]["sum"] / 20)) + "`\n"
+    string += "** Denegados: ** `" + str(round(totals[7]["sum"] / 20)) + "`\n"
+    string += "** Daño: ** `" + str(round(totals[11]["sum"] / 20)) + "`\n"
+    string += "** Nivel: ** `" + str(round(totals[10]["sum"] / 20)) + "`\n"
 
     string += ""
 
