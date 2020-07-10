@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total
 
 
 def read_token():
@@ -31,7 +31,7 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith('!help'):
+    if message.content.startswith('!help') or message.content.startswith('!commands'):
         await message.channel.send(show_help())
 
     if message.content.startswith('!refresh') and len(message.content.split()) > 1:
@@ -76,6 +76,15 @@ async def on_message(message):
         else:
             try:
                 await message.channel.send(avg(players[message.content.split()[1]]))
+            except KeyError:
+                await message.channel.send("Tiene el perfil privado esa caquita")
+
+    if message.content.startswith('!total') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+        else:
+            try:
+                await message.channel.send(total(players[message.content.split()[1]]))
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 

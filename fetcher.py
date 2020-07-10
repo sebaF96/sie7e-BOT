@@ -19,9 +19,9 @@ HERO_DICT = get_hero_dict()
 
 def get_nick(player_id: int):
     if player_id == 130817647:
-        return "pela"
+        return "Pela"
     if player_id == 275221784:
-        return "lucas"
+        return "Lucas"
 
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
@@ -135,9 +135,9 @@ def last(player_id: int) -> str:
     string += "** Last Hits: ** `" + str(match["last_hits"]) + "`\n"
     string += "** OPM: ** `" + str(match["gold_per_min"]) + "`\n"
     string += "** EPM: ** `" + str(match["xp_per_min"]) + "`\n"
-    string += "** Daño: ** `" + str(match["hero_damage"]) + "`\n"
-    string += "** Daño a torres: ** `" + str(match["tower_damage"]) + "`\n"
-    string += "** Curacion: ** `" + str(match["hero_healing"]) + "`\n"
+    string += "** Daño: ** `" + str("{:,}".format(match["hero_damage"]).replace(',', '.')) + "`\n"
+    string += "** Daño a torres: ** `" + str("{:,}".format(match["tower_damage"]).replace(',', '.')) + "`\n"
+    string += "** Curacion: ** `" + str("{:,}".format(match["hero_healing"]).replace(',', '.')) + "`\n"
 
     string += ""
 
@@ -148,18 +148,37 @@ def avg(player_id: int) -> str:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals?limit=20')
     totals = json.loads(response.text)
 
-    string = "**Promedios de " + get_nick(player_id) + "\n"
-    string += ("-" * 31) + "** \n"
+    string = "**Promedios de " + get_nick(player_id) + " (ultimas 20)\n"
+    string += ("-" * 40) + "** \n"
 
-    string += "** Kills: ** `" + str(totals[0]["sum"] / 20) + "`\n"
-    string += "** Muertes: ** `" + str(totals[1]["sum"] / 20) + "`\n"
-    string += "** Assists: ** `" + str(totals[2]["sum"] / 20) + "`\n"
+    string += "** Kills: ** `" + str(totals[0]["sum"] / 20).replace('.', ',') + "`\n"
+    string += "** Muertes: ** `" + str(totals[1]["sum"] / 20).replace('.', ',') + "`\n"
+    string += "** Assists: ** `" + str(totals[2]["sum"] / 20).replace('.', ',') + "`\n"
     string += "** OPM: ** `" + str(round(totals[4]["sum"] / 20)) + "`\n"
     string += "** EPM: ** `" + str(round(totals[5]["sum"] / 20)) + "`\n"
     string += "** Last Hits: ** `" + str(round(totals[6]["sum"] / 20)) + "`\n"
     string += "** Denegados: ** `" + str(round(totals[7]["sum"] / 20)) + "`\n"
-    string += "** Daño: ** `" + str(round(totals[11]["sum"] / 20)) + "`\n"
+    string += "** Daño: ** `" + str("{:,}".format(round(totals[11]["sum"] / 20)).replace(',', '.')) + "`\n"
     string += "** Nivel: ** `" + str(round(totals[10]["sum"] / 20)) + "`\n"
+
+    string += ""
+
+    return string
+
+
+def total(player_id: int) -> str:
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals')
+    totals = json.loads(response.text)
+
+    string = "**Totales de " + get_nick(player_id) + "\n"
+    string += ("-" * 31) + "** \n"
+
+    string += "** Kills: ** `" + str("{:,}".format(totals[0]["sum"]).replace(',', '.')) + "`\n"
+    string += "** Muertes: ** `" + str("{:,}".format(totals[1]["sum"]).replace(',', '.')) + "`\n"
+    string += "** Assists: ** `" + str("{:,}".format(totals[2]["sum"]).replace(',', '.')) + "`\n"
+    string += "** Last Hits: ** `" + str("{:,}".format(totals[6]["sum"]).replace(',', '.')) + "`\n"
+    string += "** Denegados: ** `" + str("{:,}".format(totals[7]["sum"]).replace(',', '.')) + "`\n"
+    string += "** Daño: ** `" + str("{:,}".format(totals[11]["sum"]).replace(',', '.')) + "`\n"
 
     string += ""
 
