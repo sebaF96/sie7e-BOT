@@ -112,6 +112,7 @@ def show_help() -> str:
     string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
     string += "**`!total <player>`** ---> muestra los totales de ese player\n"
     string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 5 dias\n"
+    string += "**`!random`** ---> te tira la img de un heroe random\n"
 
     return string
 

@@ -1,6 +1,6 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank
-from objects import Last
+import random
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, HERO_ICON
 
 
 def read_token():
@@ -71,7 +71,8 @@ async def on_message(message):
                 last_game = last(players[message.content.split()[1]])
 
                 embed = discord.Embed(
-                    colour=discord.Color.green() if last_game.get_wl().startswith(":green") else discord.Color.dark_red(),
+                    colour=discord.Color.green() if last_game.get_wl().startswith(
+                        ":green") else discord.Color.dark_red(),
                     title=last_game.get_title(),
                     description=last_game.get_wl())
                 embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
@@ -113,6 +114,16 @@ async def on_message(message):
         string = wins_rank(players)
 
         await message.channel.send(string)
+
+    if message.content.startswith('!random'):
+        try:
+            my_url = random.choice(HERO_ICON)
+            embed = discord.Embed()
+            embed.set_image(url=my_url)
+
+            await message.channel.send(embed=embed)
+        except KeyError or Exception:
+            await message.channel.send("Nop")
 
 
 client.run(read_token())
