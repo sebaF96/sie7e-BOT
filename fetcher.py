@@ -244,3 +244,10 @@ def wins_rank(players: dict) -> str:
     string += "       **`" + rank_list[5][1] + " wins`** --> **" + str(rank_list[5][0]) + "** \n"
 
     return string
+
+
+def get_joke() -> dict:
+    r = requests.get("https://sv443.net/jokeapi/v2/joke/Miscellaneous,Dark")
+    joke = json.loads(r.text)
+
+    return joke

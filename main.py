@@ -1,6 +1,6 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, HERO_ICON
-import random
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke
+import asyncio
 
 
 def read_token():
@@ -155,10 +155,24 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
+
     if message.content.startswith('!wins'):
         string = wins_rank(players)
 
         await message.channel.send(string)
+
+    if message.content.startswith("!joke"):
+        await message.channel.purge(limit=1)
+        joke = get_joke()
+        if joke["type"] == "single":
+            await message.channel.send(joke["joke"])
+        else:
+            await message.channel.send(joke["setup"])
+
+            await asyncio.sleep(10)
+
+            await message.channel.send(joke["delivery"])
+
 
 
 client.run(read_token())
