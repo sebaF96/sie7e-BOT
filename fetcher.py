@@ -14,7 +14,26 @@ def get_hero_dict() -> dict:
     return min_hero_dict
 
 
+def get_hero_picture(icon=False) -> dict:
+    base_url = "https://steamcdn-a.akamaihd.net"
+    with open('heroes.json', 'r') as file:
+        data = file.read()
+        full_hero_dict = json.loads(data)
+        min_hero_dict = {}
+
+        if icon:
+            for hero in full_hero_dict:
+                min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['icon'])
+        else:
+            for hero in full_hero_dict:
+                min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['img'])
+
+        return min_hero_dict
+
+
 HERO_DICT = get_hero_dict()
+HERO_PICTURE = get_hero_picture()
+HERO_ICON = get_hero_picture(icon=True)
 
 
 def get_nick(player_id: int):
