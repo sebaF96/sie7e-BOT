@@ -122,7 +122,6 @@ def show_help() -> str:
     string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
     string += "**`!total <player>`** ---> muestra los totales de ese player\n"
     string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 5 dias\n"
-    string += "**`!random`** ---> te tira la img de un heroe random\n"
 
     return string
 
@@ -180,26 +179,24 @@ def last(player_id: int) -> Last:
     return last_game
 
 
-def avg(player_id: int) -> str:
+def avg(player_id: int) -> Avg:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals?limit=20')
     totals = json.loads(response.text)
 
-    string = "**Promedios de " + get_nick(player_id) + " (ultimas 20)\n"
-    string += ("-" * 40) + "** \n"
+    avg_obj = Avg(titulo="Promedios de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
+                  kills=str(totals[0]["sum"] / 20).replace('.', ','),
+                  muertes=str(totals[1]["sum"] / 20).replace('.', ','),
+                  assists=str(totals[2]["sum"] / 20).replace('.', ','),
+                  opm=str(round(totals[4]["sum"] / 20)),
+                  epm=str(round(totals[5]["sum"] / 20)),
+                  lh=str(round(totals[6]["sum"] / 20)),
+                  denegados=str(round(totals[7]["sum"] / 20)),
+                  dano=str("{:,}".format(round(totals[11]["sum"] / 20)).replace(',', '.')),
+                  nivel=str(round(totals[10]["sum"] / 20)))
 
-    string += "** Kills: ** `" + str(totals[0]["sum"] / 20).replace('.', ',') + "`\n"
-    string += "** Muertes: ** `" + str(totals[1]["sum"] / 20).replace('.', ',') + "`\n"
-    string += "** Assists: ** `" + str(totals[2]["sum"] / 20).replace('.', ',') + "`\n"
-    string += "** OPM: ** `" + str(round(totals[4]["sum"] / 20)) + "`\n"
-    string += "** EPM: ** `" + str(round(totals[5]["sum"] / 20)) + "`\n"
-    string += "** Last Hits: ** `" + str(round(totals[6]["sum"] / 20)) + "`\n"
-    string += "** Denegados: ** `" + str(round(totals[7]["sum"] / 20)) + "`\n"
-    string += "** Daño: ** `" + str("{:,}".format(round(totals[11]["sum"] / 20)).replace(',', '.')) + "`\n"
-    string += "** Nivel: ** `" + str(round(totals[10]["sum"] / 20)) + "`\n"
 
-    string += ""
 
-    return string
+    return avg_obj
 
 
 def total(player_id: int) -> Total:

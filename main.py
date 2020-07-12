@@ -96,7 +96,24 @@ async def on_message(message):
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                await message.channel.send(avg(players[message.content.split()[1]]))
+                avg_obj = avg(players[message.content.split()[1]])
+                embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
+                                      description="Estadisticas de las ultimas 20 partidas")
+                embed.set_thumbnail(url=avg_obj.get_thumbnail())
+
+                embed.add_field(name="Kills", value=avg_obj.get_kills())
+                embed.add_field(name="Muertes", value=avg_obj.get_muertes())
+                embed.add_field(name="Assists", value=avg_obj.get_assists())
+                embed.add_field(name="OPM", value=avg_obj.get_opm())
+                embed.add_field(name="EPM", value=avg_obj.get_epm())
+                embed.add_field(name="Last Hits", value=avg_obj.get_lh())
+                embed.add_field(name="Denegados", value=avg_obj.get_denegados())
+                embed.add_field(name="Daño", value=avg_obj.get_dano())
+                embed.add_field(name="Nivel", value=avg_obj.get_nivel())
+                embed.set_footer(text="Cortesia de sie7e-BOT",
+                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+
+                await message.channel.send(embed=embed)
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
