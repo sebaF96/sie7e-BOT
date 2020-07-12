@@ -101,7 +101,7 @@ class Last:
 
 
 class Total:
-    def __init__(self, titulo, thumbnail, kills, muertes, assists, lh, denegados, dano):
+    def __init__(self, titulo, thumbnail, kills, muertes, assists, lh, denegados, dano, total_games=0, winrate=0):
         self.__titulo = titulo
         self.__thumbnail = thumbnail
         self.__kills = kills
@@ -110,6 +110,8 @@ class Total:
         self.__lh = lh
         self.__denegados = denegados
         self.__dano = dano
+        self.__total__games = total_games
+        self.__winrate = winrate
 
     def get_titulo(self):
         return self.__titulo
@@ -134,6 +136,12 @@ class Total:
 
     def get_dano(self):
         return self.__dano
+
+    def get_total_games(self):
+        return self.__total__games
+
+    def get_winrate(self):
+        return self.__winrate
 
 
 class Avg(Total):

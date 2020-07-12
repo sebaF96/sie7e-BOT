@@ -147,6 +147,12 @@ def w_l(player_id: int) -> str:
     return string
 
 
+def get_winrate(player_id: int) -> str:
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl')
+    wl = json.loads(response.text)
+    return str(round((wl["win"] / (wl["lose"] + wl["win"])) * 100, 2)).replace('.', ',') + "%"
+
+
 def last(player_id: int) -> Last:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
@@ -206,7 +212,9 @@ def total(player_id: int) -> Total:
                       assists=str("{:,}".format(totals[2]["sum"]).replace(',', '.')),
                       lh=str("{:,}".format(totals[6]["sum"]).replace(',', '.')),
                       denegados=str("{:,}".format(totals[7]["sum"]).replace(',', '.')),
-                      dano=str("{:,}".format(totals[11]["sum"]).replace(',', '.')))
+                      dano=str("{:,}".format(totals[11]["sum"]).replace(',', '.')),
+                      total_games=str("{:,}".format(totals[0]["n"]).replace(',', '.')),
+                      winrate=get_winrate(player_id))
 
     return total_obj
 

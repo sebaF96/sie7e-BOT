@@ -110,13 +110,16 @@ async def on_message(message):
                                       description="Contador de todas las partidas jugadas")
                 embed.set_thumbnail(url=total_obj.get_thumbnail())
 
+                embed.add_field(name="Partidas", value=total_obj.get_total_games())
+                embed.add_field(name="Winrate", value=total_obj.get_winrate())
                 embed.add_field(name="Kills", value=total_obj.get_kills())
                 embed.add_field(name="Muertes", value=total_obj.get_muertes())
                 embed.add_field(name="Assists", value=total_obj.get_assists())
                 embed.add_field(name="Last Hits", value=total_obj.get_lh())
                 embed.add_field(name="Denegados", value=total_obj.get_denegados())
                 embed.add_field(name="Daño", value=total_obj.get_dano())
-                embed.set_footer(text="Cortesia de sie7e-BOT", icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+                embed.set_footer(text="Cortesia de sie7e-BOT",
+                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
 
                 await message.channel.send(embed=embed)
             except KeyError:
