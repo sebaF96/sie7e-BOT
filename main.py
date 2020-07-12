@@ -67,10 +67,13 @@ async def on_message(message):
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
+
                 last_game = last(players[message.content.split()[1]])
 
-                embed = discord.Embed(colour=discord.Color.purple(), title=last_game.get_title(),
-                                      description=last_game.get_wl())
+                embed = discord.Embed(
+                    colour=discord.Color.green() if last_game.get_wl().startswith(":green") else discord.Color.dark_red(),
+                    title=last_game.get_title(),
+                    description=last_game.get_wl())
                 embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
                 embed.add_field(name="KDA", value=last_game.get_kda())
                 embed.add_field(name="Duracion", value=last_game.get_duracion())
@@ -110,5 +113,6 @@ async def on_message(message):
         string = wins_rank(players)
 
         await message.channel.send(string)
+
 
 client.run(read_token())
