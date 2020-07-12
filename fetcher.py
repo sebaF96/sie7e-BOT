@@ -18,10 +18,8 @@ HERO_DICT = get_hero_dict()
 
 
 def get_nick(player_id: int):
-    if player_id == 130817647:
-        return "Pela"
     if player_id == 275221784:
-        return "Lucas"
+        return "Skywalker"
 
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
