@@ -159,3 +159,41 @@ class Avg(Total):
 
     def get_nivel(self):
         return self.__nivel
+
+
+class Stats:
+    def __init__(self, titulo, thumbnail, game0, game1, game2, game3, game4):
+        self.__titulo = titulo
+        self.__thumbnail = thumbnail
+        self.__game0 = game0
+        self.__game1 = game1
+        self.__game2 = game2
+        self.__game3 = game3
+        self.__game4 = game4
+        self.__delimiter = "-" * 60
+        self.__descripcion = "Partidas recientes de este noob"
+
+
+    def get_titulo(self):
+        return self.__titulo
+
+    def get_thumbnail(self):
+        return self.__thumbnail
+
+    def get_game(self, n):
+        if n == 0:
+            return self.__game0
+        elif n == 1:
+            return self.__game1
+        elif n == 2:
+            return self.__game2
+        elif n == 3:
+            return self.__game3
+        else:
+            return self.__game4
+
+    def get_delimiter(self):
+        return self.__delimiter
+
+    def get_descripcion(self):
+        return self.__descripcion

@@ -1,5 +1,6 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, HERO_ICON
+import random
 
 
 def read_token():
@@ -27,7 +28,19 @@ async def on_message(message):
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                await message.channel.send(stats(players[message.content.split()[1]]))
+                stats_obj = stats(players[message.content.split()[1]])
+                embed = discord.Embed(title=stats_obj.get_titulo(), description=stats_obj.get_descripcion(),
+                                      colour=discord.Color.light_grey())
+
+                for i in range(0, 5, 1):
+                    embed.add_field(name=stats_obj.get_game(i), value=stats_obj.get_delimiter(), inline=False)
+
+                embed.set_thumbnail(url=stats_obj.get_thumbnail())
+
+                embed.set_footer(text="Cortesia de sie7e-BOT",
+                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+                await message.channel.send(embed=embed)
+
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 

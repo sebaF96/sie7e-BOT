@@ -1,7 +1,7 @@
 import json
 import requests
 import time
-from objects import Last, Total, Avg
+from objects import Last, Total, Avg, Stats
 
 
 def get_hero_dict() -> dict:
@@ -92,23 +92,26 @@ def format_time_ago(timestamp):
     return "hace " + time_ago + " seg aprox."
 
 
-def stats(player_id: int) -> str:
+def stats(player_id: int) -> Stats:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
+    games = []
 
-    string = "**Ultimos 5 games de " + get_nick(player_id) + "\n"
-    string += ("-" * 38) + "**"
-
-    for match in recent_matches[:5]:
+    for i in range(0, 5, 1):
+        match = recent_matches[i]
         radiant = is_radiant(match["player_slot"])
-        wl = "\n:green_circle:   Gano" if radiant == match["radiant_win"] else " \n:red_circle:   Perdio "
-        string += wl + " con **"
-        string += HERO_DICT[match["hero_id"]] + "** y salio **"
-        string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"]) + '**'
+        string = ":green_circle:   Gano" if radiant == match["radiant_win"] else ":red_circle:   Perdio"
+        string += " con "
+        string += HERO_DICT[match["hero_id"]] + " y salio "
+        string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"])
 
-    string += ""
+        games.append(string)
 
-    return string
+
+    stats_obj = Stats(titulo="Ultimos 5 games de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
+                      game0=games[0], game1=games[1], game2=games[2], game3=games[3], game4=games[4])
+
+    return stats_obj
 
 
 def show_help() -> str:
@@ -193,8 +196,6 @@ def avg(player_id: int) -> Avg:
                   denegados=str(round(totals[7]["sum"] / 20)),
                   dano=str("{:,}".format(round(totals[11]["sum"] / 20)).replace(',', '.')),
                   nivel=str(round(totals[10]["sum"] / 20)))
-
-
 
     return avg_obj
 
