@@ -1,5 +1,6 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_hero_picture
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank
+from objects import Last
 
 
 def read_token():
@@ -66,7 +67,24 @@ async def on_message(message):
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                await message.channel.send(last(players[message.content.split()[1]]))
+                last_game = last(players[message.content.split()[1]])
+
+                embed = discord.Embed(colour=discord.Color.purple(), title=last_game.get_title(),
+                                      description=last_game.get_wl())
+                embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
+                embed.add_field(name="KDA", value=last_game.get_kda())
+                embed.add_field(name="Duracion", value=last_game.get_duracion())
+                embed.add_field(name="Last Hits", value=last_game.get_lh())
+                embed.add_field(name="OPM", value=last_game.get_opm())
+                embed.add_field(name="EPM", value=last_game.get_epm())
+                embed.add_field(name="Daño", value=last_game.get_dano())
+                embed.add_field(name="Daño a torres", value=last_game.get_dano_t())
+                embed.add_field(name="Curacion", value=last_game.get_curacion())
+                embed.set_footer(text=last_game.get_time_ago())
+                embed.set_thumbnail(url=last_game.get_hero_img())
+
+                await message.channel.send(embed=embed)
+
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
@@ -87,23 +105,6 @@ async def on_message(message):
                 await message.channel.send(total(players[message.content.split()[1]]))
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
-
-    if message.content.startswith('!try_embed'):
-        embed = discord.Embed(colour=discord.Color.purple(), title="Ultimo game de EL PELA", description=":red_circle:  Derrota")
-        embed.set_author(name="EL PELA", icon_url=get_hero_picture(icon=True)[68])
-        embed.add_field(name="KDA", value="1/3/5")
-        embed.add_field(name="Duracion", value="26:15")
-        embed.add_field(name="Last Hits", value="67")
-        embed.add_field(name="OPM", value="383")
-        embed.add_field(name="EPM", value="400")
-        embed.add_field(name="Daño", value="2.477")
-        embed.add_field(name="Daño a torres", value="1922")
-        embed.add_field(name="Curacion", value="19")
-        embed.set_footer(text="hace 17 min aprox")
-        embed.set_thumbnail(url=get_hero_picture()[68])
-
-
-        await message.channel.send(embed=embed)
 
     if message.content.startswith('!wins'):
         string = wins_rank(players)

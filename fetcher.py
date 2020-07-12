@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+from objects import Last
 
 
 def get_hero_dict() -> dict:
@@ -135,30 +136,31 @@ def w_l(player_id: int) -> str:
     return string
 
 
-def last(player_id: int) -> str:
+def last(player_id: int) -> Last:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
     match = recent_matches[0]
     radiant = is_radiant(match['player_slot'])
 
-    string = "**Ultimo game de " + get_nick(player_id) + "** \n"
-    wl = ":green_circle:  Gano" if radiant == match["radiant_win"] else ":red_circle:  Perdio "
-    string += wl + " con **"
-    string += HERO_DICT[match["hero_id"]] + "** "
-    string += format_time_ago(match["start_time"] + match["duration"]) + "\n\n"
+    last_game = Last()
 
-    string += "** KDA: ** `" + str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"]) + "`\n"
-    string += "** Duracion: ** `" + format_duration(match["duration"]) + "`\n"
-    string += "** Last Hits: ** `" + str(match["last_hits"]) + "`\n"
-    string += "** OPM: ** `" + str(match["gold_per_min"]) + "`\n"
-    string += "** EPM: ** `" + str(match["xp_per_min"]) + "`\n"
-    string += "** Daño: ** `" + str("{:,}".format(match["hero_damage"]).replace(',', '.')) + "`\n"
-    string += "** Daño a torres: ** `" + str("{:,}".format(match["tower_damage"]).replace(',', '.')) + "`\n"
-    string += "** Curacion: ** `" + str("{:,}".format(match["hero_healing"]).replace(',', '.')) + "`\n"
+    last_game.set_hero_icon(HERO_ICON[match["hero_id"]])
+    last_game.set_hero_img(HERO_PICTURE[match["hero_id"]])
+    last_game.set_hero_name(HERO_DICT[match["hero_id"]])
 
-    string += ""
+    last_game.set_title("Ultimo game de " + get_nick(player_id))
+    last_game.set_wl(":green_circle:   Victoria" if radiant == match["radiant_win"] else ":red_circle:   Derrota ")
+    last_game.set_kda(str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"]))
+    last_game.set_duracion(format_duration(match["duration"]))
+    last_game.set_lh(str(match["last_hits"]))
+    last_game.set_opm(str(match["gold_per_min"]))
+    last_game.set_epm(str(match["xp_per_min"]))
+    last_game.set_dano(str("{:,}".format(match["hero_damage"]).replace(',', '.')))
+    last_game.set_dano_t(str("{:,}".format(match["tower_damage"]).replace(',', '.')))
+    last_game.set_curacion(str("{:,}".format(match["hero_healing"]).replace(',', '.')))
+    last_game.set_time_ago(format_time_ago(match['start_time'] + match['duration']))
 
-    return string
+    return last_game
 
 
 def avg(player_id: int) -> str:
