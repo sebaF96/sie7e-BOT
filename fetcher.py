@@ -1,7 +1,7 @@
 import json
 import requests
 import time
-from objects import Last
+from objects import Last, Total, Avg
 
 
 def get_hero_dict() -> dict:
@@ -45,6 +45,16 @@ def get_nick(player_id: int):
     profile = json.loads(response.text)
 
     return profile["profile"]["personaname"]
+
+
+def get_avatar_url(player_id: int):
+    if player_id == 275221784:
+        return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/b6/b61deaa03441b6a4c3c641f9ca2eff76c94a2154_full.jpg"
+
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
+    profile = json.loads(response.text)
+
+    return profile["profile"]["avatarfull"]
 
 
 def is_radiant(player_slot: int) -> bool:
@@ -186,23 +196,19 @@ def avg(player_id: int) -> str:
     return string
 
 
-def total(player_id: int) -> str:
+def total(player_id: int) -> Total:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals')
     totals = json.loads(response.text)
 
-    string = "**Totales de " + get_nick(player_id) + "\n"
-    string += ("-" * 31) + "** \n"
+    total_obj = Total(titulo="Totales de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
+                      kills=str("{:,}".format(totals[0]["sum"]).replace(',', '.')),
+                      muertes=str("{:,}".format(totals[1]["sum"]).replace(',', '.')),
+                      assists=str("{:,}".format(totals[2]["sum"]).replace(',', '.')),
+                      lh=str("{:,}".format(totals[6]["sum"]).replace(',', '.')),
+                      denegados=str("{:,}".format(totals[7]["sum"]).replace(',', '.')),
+                      dano=str("{:,}".format(totals[11]["sum"]).replace(',', '.')))
 
-    string += "** Kills: ** `" + str("{:,}".format(totals[0]["sum"]).replace(',', '.')) + "`\n"
-    string += "** Muertes: ** `" + str("{:,}".format(totals[1]["sum"]).replace(',', '.')) + "`\n"
-    string += "** Assists: ** `" + str("{:,}".format(totals[2]["sum"]).replace(',', '.')) + "`\n"
-    string += "** Last Hits: ** `" + str("{:,}".format(totals[6]["sum"]).replace(',', '.')) + "`\n"
-    string += "** Denegados: ** `" + str("{:,}".format(totals[7]["sum"]).replace(',', '.')) + "`\n"
-    string += "** Daño: ** `" + str("{:,}".format(totals[11]["sum"]).replace(',', '.')) + "`\n"
-
-    string += ""
-
-    return string
+    return total_obj
 
 
 def wins_rank(players: dict) -> str:
@@ -224,14 +230,11 @@ def wins_rank(players: dict) -> str:
     string = "**Top victorias (5 dias) \n"
     string += ("-" * 30) + "** \n"
 
-
-
     string += ":first_place: **`" + rank_list[0][1] + " wins`** --> **" + str(rank_list[0][0]) + "** \n"
     string += ":second_place: **`" + rank_list[1][1] + " wins`** --> **" + str(rank_list[1][0]) + "** \n"
     string += ":third_place: **`" + rank_list[2][1] + " wins`** --> **" + str(rank_list[2][0]) + "** \n"
     string += "       **`" + rank_list[3][1] + " wins`** --> **" + str(rank_list[3][0]) + "** \n"
     string += "       **`" + rank_list[4][1] + " wins`** --> **" + str(rank_list[4][0]) + "** \n"
     string += "       **`" + rank_list[5][1] + " wins`** --> **" + str(rank_list[5][0]) + "** \n"
-
 
     return string

@@ -99,3 +99,55 @@ class Last:
     def set_time_ago(self, time_ago):
         self.__time_ago = time_ago
 
+
+class Total:
+    def __init__(self, titulo, thumbnail, kills, muertes, assists, lh, denegados, dano):
+        self.__titulo = titulo
+        self.__thumbnail = thumbnail
+        self.__kills = kills
+        self.__muertes = muertes
+        self.__assists = assists
+        self.__lh = lh
+        self.__denegados = denegados
+        self.__dano = dano
+
+    def get_titulo(self):
+        return self.__titulo
+
+    def get_thumbnail(self):
+        return self.__thumbnail
+
+    def get_kills(self):
+        return self.__kills
+
+    def get_muertes(self):
+        return self.__muertes
+
+    def get_assists(self):
+        return self.__assists
+
+    def get_lh(self):
+        return self.__lh
+
+    def get_denegados(self):
+        return self.__denegados
+
+    def get_dano(self):
+        return self.__dano
+
+
+class Avg(Total):
+    def __init__(self, titulo, thumbnail, kills, muertes, assists, lh, denegados, dano, nivel, opm, epm):
+        super().__init__(titulo, thumbnail, kills, muertes, assists, lh, denegados, dano)
+        self.__nivel = nivel
+        self.__opm = opm
+        self.__epm = epm
+
+    def get_opm(self):
+        return self.__opm
+
+    def get_epm(self):
+        return self.__epm
+
+    def get_nivel(self):
+        return self.__nivel
