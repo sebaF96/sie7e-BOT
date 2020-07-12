@@ -170,7 +170,7 @@ class Stats:
         self.__game2 = game2
         self.__game3 = game3
         self.__game4 = game4
-        self.__delimiter = "-" * 55
+        self.__delimiter = "-" * 46
         self.__descripcion = "Partidas recientes de este noob"
 
 
