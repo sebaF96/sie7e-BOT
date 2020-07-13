@@ -41,6 +41,10 @@ def get_nick(player_id: int):
     if player_id == 275221784:
         return "Skywalker"
 
+    if player_id == 145875771:
+        return "statham"
+
+
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
 
@@ -50,6 +54,9 @@ def get_nick(player_id: int):
 def get_avatar_url(player_id: int):
     if player_id == 275221784:
         return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/b6/b61deaa03441b6a4c3c641f9ca2eff76c94a2154_full.jpg"
+
+    if player_id == 145875771:
+        return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/81/81dcd9de02c6d4859b9f6f8f6cb3342bc49d6fcf_full.jpg"
 
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
