@@ -1,5 +1,5 @@
 class Last:
-    def __init__(self, hero="", title="", wl="", kda="", duracion="", lh="", opm="", epm="", dano="", dano_t="", curacion="", time_ago="", hero_img="", hero_icon=""):
+    def __init__(self, hero="", title="", wl="", kda="", duracion="", lh="", opm="", epm="", dano="", dano_t="", curacion="", time_ago="", hero_img="", hero_icon="", build=[]):
         self.__hero__name = hero
         self.__title = title
         self.__wl = wl
@@ -14,6 +14,7 @@ class Last:
         self.__time_ago = time_ago
         self.__hero_img = hero_img
         self.__hero_icon = hero_icon
+        self.__build = build
 
     def get_title(self) -> str:
         return self.__title
@@ -98,6 +99,12 @@ class Last:
 
     def set_time_ago(self, time_ago):
         self.__time_ago = time_ago
+
+    def set_build(self, build):
+        self.__build = build
+
+    def get_build(self):
+        return self.__build
 
 
 class Total:

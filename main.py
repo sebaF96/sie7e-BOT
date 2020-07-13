@@ -1,5 +1,6 @@
 import discord
 from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke
+from drawdota import save_build_image
 import asyncio
 
 
@@ -156,7 +157,6 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-
     if message.content.startswith('!wins'):
         string = wins_rank(players)
 
@@ -173,6 +173,38 @@ async def on_message(message):
             await asyncio.sleep(10)
 
             await message.channel.send(joke["delivery"])
+
+    if message.content.startswith('!try_last'):
+
+        try:
+
+            last_game = last(players[message.content.split()[1]])
+
+            save_build_image(last_game.get_build())
+            file = discord.File("last_match_items.png", filename="image.png")
+
+            embed = discord.Embed(
+                colour=discord.Color.green() if last_game.get_wl().startswith(
+                    ":green") else discord.Color.dark_red(),
+                title=last_game.get_title(),
+                description=last_game.get_wl())
+            embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
+            embed.add_field(name="KDA", value=last_game.get_kda())
+            embed.add_field(name="Duracion", value=last_game.get_duracion())
+            embed.add_field(name="Last Hits", value=last_game.get_lh())
+            embed.add_field(name="OPM", value=last_game.get_opm())
+            embed.add_field(name="EPM", value=last_game.get_epm())
+            embed.add_field(name="Daño", value=last_game.get_dano())
+            embed.add_field(name="Daño a torres", value=last_game.get_dano_t())
+            embed.add_field(name="Curacion", value=last_game.get_curacion())
+            embed.set_footer(text=last_game.get_time_ago())
+            embed.set_thumbnail(url=last_game.get_hero_img())
+            embed.set_image(url="attachment://image.png")
+
+            await message.channel.send(embed=embed, file=file)
+
+        except KeyError:
+            await message.channel.send("Tiene el perfil privado esa caquita")
 
 
 

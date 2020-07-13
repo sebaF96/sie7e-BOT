@@ -155,6 +155,23 @@ def get_winrate(player_id: int) -> str:
     return str(round((wl["win"] / (wl["lose"] + wl["win"])) * 100, 2)).replace('.', ',') + "%"
 
 
+def get_build(match_id: int, player_slot: int) -> list:
+    r = requests.get("https://api.opendota.com/api/matches/" + str(match_id))
+    full_match = json.loads(r.text)
+    build = []
+
+    for player_n in full_match["players"]:
+        if player_n["player_slot"] == player_slot:
+            build.append(player_n["item_0"])
+            build.append(player_n["item_1"])
+            build.append(player_n["item_2"])
+            build.append(player_n["item_3"])
+            build.append(player_n["item_4"])
+            build.append(player_n["item_5"])
+
+            return build
+
+
 def last(player_id: int) -> Last:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
@@ -178,6 +195,7 @@ def last(player_id: int) -> Last:
     last_game.set_dano_t(str("{:,}".format(match["tower_damage"]).replace(',', '.')))
     last_game.set_curacion(str("{:,}".format(match["hero_healing"]).replace(',', '.')))
     last_game.set_time_ago(format_time_ago(match['start_time'] + match['duration']))
+    last_game.set_build(get_build(match["match_id"], match["player_slot"]))
 
     return last_game
 
