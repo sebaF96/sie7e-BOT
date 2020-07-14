@@ -183,6 +183,7 @@ async def on_message(message):
 
     if message.content.startswith("!on"):
         print(get_on())
+        await message.channel.send("Esta feature todavia no esta terminada, esta noche queda")
 
 
 client.run(read_token())

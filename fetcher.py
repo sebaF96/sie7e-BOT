@@ -46,7 +46,6 @@ def get_nick(player_id: int):
     if player_id == 145875771:
         return "statham"
 
-
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
 
@@ -117,7 +116,6 @@ def stats(player_id: int) -> Stats:
         string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"])
 
         games.append(string)
-
 
     stats_obj = Stats(titulo="Ultimos 5 games de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
                       game0=games[0], game1=games[1], game2=games[2], game3=games[3], game4=games[4])
@@ -283,21 +281,26 @@ def get_joke() -> dict:
     return joke
 
 
-with open("steam_ids.json", 'r') as fd:
-    load_dotenv()
-    base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv("STEAM_APIKEY") + "&steamids="
-    my_players_dict = json.loads(fd.read())
+def get_playerssummary_url():
+    with open("steam_ids.json", 'r') as fd:
+        load_dotenv()
+        base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
+            "STEAM_APIKEY") + "&steamids="
+        my_players_dict = json.loads(fd.read())
 
-    for idx, player in enumerate(my_players_dict["players"]):
-        if idx == len(my_players_dict["players"]) - 1:
-            base_url += str(player["steam_id"])
-            break
+        for idx, player in enumerate(my_players_dict["players"]):
+            if idx == len(my_players_dict["players"]) - 1:
+                base_url += str(player["steam_id"])
+                break
 
-        base_url += str(player["steam_id"]) + ","
+            base_url += str(player["steam_id"]) + ","
+        return base_url
 
 
+base_url = get_playerssummary_url()
 
-def get_on():
+
+def get_on() -> list:
     r = requests.get(base_url)
     actual_players_dict = json.loads(r.text)["response"]
 
