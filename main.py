@@ -184,7 +184,7 @@ async def on_message(message):
     if message.content.startswith("!on"):
         dota_players, online_players = get_on()
 
-        embed = discord.Embed(colour=discord.Color.blurple(), title="Jugadores Online",
+        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
                               description="Players que estan conectados en este momento")
         embed.set_thumbnail(
             url="https://png2.cleanpng.com/sh/e4493bf635aed2e7e0a24da82be72430"
