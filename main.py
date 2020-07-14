@@ -1,12 +1,15 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on
 from drawdota import save_build_image
 import asyncio
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 def read_token():
-    with open('token.txt', 'r') as f:
-        return f.readline().strip()
+    return os.getenv('BOT_TOKEN')
 
 
 client = discord.Client()
@@ -177,6 +180,9 @@ async def on_message(message):
             await asyncio.sleep(10)
 
             await message.channel.send(joke["delivery"])
+
+    if message.content.startswith("!on"):
+        print(get_on())
 
 
 client.run(read_token())

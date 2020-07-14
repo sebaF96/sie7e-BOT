@@ -2,6 +2,8 @@ import json
 import requests
 import time
 from objects import Last, Total, Avg, Stats
+from dotenv import load_dotenv
+import os
 
 
 def get_hero_dict() -> dict:
@@ -53,10 +55,12 @@ def get_nick(player_id: int):
 
 def get_avatar_url(player_id: int):
     if player_id == 275221784:
-        return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/b6/b61deaa03441b6a4c3c641f9ca2eff76c94a2154_full.jpg"
+        return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/b6" \
+               "/b61deaa03441b6a4c3c641f9ca2eff76c94a2154_full.jpg "
 
     if player_id == 145875771:
-        return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/81/81dcd9de02c6d4859b9f6f8f6cb3342bc49d6fcf_full.jpg"
+        return "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/81" \
+               "/81dcd9de02c6d4859b9f6f8f6cb3342bc49d6fcf_full.jpg "
 
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
@@ -132,6 +136,7 @@ def show_help() -> str:
     string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
     string += "**`!total <player>`** ---> muestra los totales de ese player\n"
     string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 5 dias\n"
+    string += "**`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento\n"
 
     return string
 
@@ -276,3 +281,35 @@ def get_joke() -> dict:
     joke = json.loads(r.text)
 
     return joke
+
+
+with open("steam_ids.json", 'r') as fd:
+    load_dotenv()
+    base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv("STEAM_APIKEY") + "&steamids="
+    my_players_dict = json.loads(fd.read())
+
+    for idx, player in enumerate(my_players_dict["players"]):
+        if idx == len(my_players_dict["players"]) - 1:
+            base_url += str(player["steam_id"])
+            break
+
+        base_url += str(player["steam_id"]) + ","
+
+
+
+def get_on():
+    r = requests.get(base_url)
+    actual_players_dict = json.loads(r.text)["response"]
+
+    online_players_nick = []
+
+    for player_data in actual_players_dict["players"]:
+        if player_data["personastate"] == 0 or "gameextrainfo" not in player_data:
+            continue
+
+        elif player_data["gameextrainfo"] != "Dota 2":
+            continue
+
+        online_players_nick.append(player_data["personaname"])
+
+    return online_players_nick
