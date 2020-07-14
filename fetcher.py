@@ -300,19 +300,20 @@ def get_playerssummary_url():
 base_url = get_playerssummary_url()
 
 
-def get_on() -> list:
+def get_on() -> (list, list):
     r = requests.get(base_url)
     actual_players_dict = json.loads(r.text)["response"]
 
+    dota_players_nick = []
     online_players_nick = []
 
     for player_data in actual_players_dict["players"]:
-        if player_data["personastate"] == 0 or "gameextrainfo" not in player_data:
+        if player_data["personastate"] == 0:
             continue
 
-        elif player_data["gameextrainfo"] != "Dota 2":
-            continue
+        elif "gameextrainfo" not in player_data or player_data["gameextrainfo"] != "Dota 2":
+            online_players_nick.append(player_data["personaname"])
+        else:
+            dota_players_nick.append(player_data["personaname"])
 
-        online_players_nick.append(player_data["personaname"])
-
-    return online_players_nick
+    return dota_players_nick, online_players_nick

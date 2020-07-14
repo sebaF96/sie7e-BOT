@@ -182,8 +182,37 @@ async def on_message(message):
             await message.channel.send(joke["delivery"])
 
     if message.content.startswith("!on"):
-        print(get_on())
-        await message.channel.send("Esta feature todavia no esta terminada, esta noche queda")
+        dota_players, online_players = get_on()
+
+        embed = discord.Embed(colour=discord.Color.blurple(), title="Jugadores Online",
+                              description="Players que estan conectados en este momento")
+        embed.set_thumbnail(
+            url="https://png2.cleanpng.com/sh/e4493bf635aed2e7e0a24da82be72430"
+                "/L0KzQYm4UcA5N5JwjpH0aYP2gLBuTfRwfJIySp91ZXHqhba0jBYudJZsfdDtcz3ndbfsjwNmNZDrReZxZT3kfrTwhf51e15xReJ3"
+                "Zz3khrL7gf4ueJ16i58AYnW3RIaBhfQxaWg1T5CAM0O5Qom9UME2PGI7UKgBN0C7RYWATwBvbz==/kisspng-dota-2-league-"
+                "of-legends-defense-of-the-ancients-l-png-avatan-plus-5be4458ed0a707.5336286015416866708547.png")
+
+        embed.set_author(name="Steam", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/"
+                                                "Steam_icon_logo.svg/1024px-Steam_icon_logo.svg.png")
+        embed.set_footer(text="Cortesia de sie7e-BOT",
+                         icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+
+
+        dota_players_string = "" if len(dota_players) > 0 else "Nadie\n\n"
+        online_players_string = "" if len(online_players) > 0 else "Nadie\n\n"
+
+
+        for player_nick in dota_players:
+            dota_players_string += ":green_circle:    " + player_nick + "\n\n"
+
+        for player_nick in online_players:
+            online_players_string += ":blue_circle:    " + player_nick + "\n\n"
+
+
+        embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
+        embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
+
+        await message.channel.send(embed=embed)
 
 
 client.run(read_token())
