@@ -105,6 +105,7 @@ def format_time_ago(timestamp):
 def stats(player_id: int) -> Stats:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
+    recent_matches = [m for m in recent_matches if m["game_mode"] != 19]
     games = []
 
     for i in range(0, 5, 1):
@@ -144,16 +145,11 @@ def refresh(player_id: int):
 
 
 def w_l(player_id: int) -> str:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
-    recent_matches = json.loads(response.text)
-    wins = 0
-    defeats = 0
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?limit=20')
+    wl = json.loads(response.text)
+    wins = wl["win"]
+    defeats = wl["lose"]
 
-    for match in recent_matches:
-        if is_radiant(match['player_slot']) == match['radiant_win']:
-            wins += 1
-        else:
-            defeats += 1
     string = "W - L de " + get_nick(player_id) + ": **" + str(wins) + " - " + str(defeats) + "**"
 
     return string
@@ -185,6 +181,7 @@ def get_build(match_id: int, player_slot: int) -> list:
 def last(player_id: int) -> Last:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
+    recent_matches = [m for m in recent_matches if m["game_mode"] != 19]
     match = recent_matches[0]
     radiant = is_radiant(match['player_slot'])
 
