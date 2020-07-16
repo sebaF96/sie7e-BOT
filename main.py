@@ -216,6 +216,8 @@ async def on_message(message):
 
 
     if message.content.startswith("!vicio"):
+        await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")
+
         vicios_hoy, vicios_semana = get_vicios(players)
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
                               description="Ranking de partidas jugadas")
@@ -239,6 +241,7 @@ async def on_message(message):
         embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
         embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
 
+        await message.channel.purge(limit=1)
         await message.channel.send(embed=embed)
 
 
