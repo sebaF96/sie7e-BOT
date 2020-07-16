@@ -1,5 +1,5 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on, get_vicios
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
@@ -211,6 +211,33 @@ async def on_message(message):
 
         embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
         embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
+
+        await message.channel.send(embed=embed)
+
+
+    if message.content.startswith("!vicio"):
+        vicios_hoy, vicios_semana = get_vicios(players)
+        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
+                              description="Ranking de partidas jugadas")
+        embed.set_thumbnail(
+            url="https://png2.cleanpng.com/sh/e4493bf635aed2e7e0a24da82be72430"
+                "/L0KzQYm4UcA5N5JwjpH0aYP2gLBuTfRwfJIySp91ZXHqhba0jBYudJZsfdDtcz3ndbfsjwNmNZDrReZxZT3kfrTwhf51e15xReJ3"
+                "Zz3khrL7gf4ueJ16i58AYnW3RIaBhfQxaWg1T5CAM0O5Qom9UME2PGI7UKgBN0C7RYWATwBvbz==/kisspng-dota-2-league-"
+                "of-legends-defense-of-the-ancients-l-png-avatan-plus-5be4458ed0a707.5336286015416866708547.png")
+
+        embed.set_footer(text="Cortesia de sie7e-BOT",
+                         icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+
+        vicios_hoy_str = ""
+        vicios_semana_str = ""
+
+        for p in vicios_hoy:
+            vicios_hoy_str += "- " + p[0] + " (" + str(p[1]) + " games)\n\n"
+        for p in vicios_semana:
+            vicios_semana_str += "- " + p[0] + " (" + str(p[1]) + " games)\n\n"
+
+        embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
+        embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
 
         await message.channel.send(embed=embed)
 

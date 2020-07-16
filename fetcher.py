@@ -134,7 +134,7 @@ def show_help() -> str:
     string += "**`!last <player>`** ---> muestra la ultima partida de ese player\n"
     string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
     string += "**`!total <player>`** ---> muestra los totales de ese player\n"
-    string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 5 dias\n"
+    string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 7 dias\n"
     string += "**`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento\n"
 
     return string
@@ -258,7 +258,7 @@ def wins_rank(players: dict) -> str:
 
     rank_list.sort(key=lambda t: int(t[1]), reverse=True)
 
-    string = "**Top victorias (5 dias) \n"
+    string = "**Top victorias (7 dias) \n"
     string += ("-" * 30) + "** \n"
 
     string += ":first_place: **`" + rank_list[0][1] + " wins`** --> **" + str(rank_list[0][0]) + "** \n"
@@ -314,3 +314,31 @@ def get_on() -> (list, list):
             dota_players_nick.append(player_data["personaname"])
 
     return dota_players_nick, online_players_nick
+
+
+def get_vicios(players):
+    vicios_hoy = []
+    vicios_semana = []
+
+    for player in players:
+        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=7')
+        games_semana = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
+
+        if games_semana <= 3:
+            continue
+
+        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=1')
+        games_hoy = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
+
+        try:
+            player_name = get_nick(players[player])
+        except KeyError:
+            continue
+
+        vicios_semana.append((player_name, games_semana))
+        vicios_hoy.append((player_name, games_hoy))
+
+    vicios_semana.sort(key=lambda x: x[1], reverse=True)
+    vicios_hoy.sort(key=lambda x: x[1], reverse=True)
+
+    return vicios_hoy[:4], vicios_semana[:4]
