@@ -214,7 +214,6 @@ async def on_message(message):
 
         await message.channel.send(embed=embed)
 
-
     if message.content.startswith("!vicio"):
         await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
 
@@ -242,6 +241,13 @@ async def on_message(message):
         embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
 
         await message.channel.send(embed=embed)
+
+    if message.content.startswith("!displaydayliwinners"):
+        await message.channel.purge(limit=1)
+        string = wins_rank(players, daily=True)
+
+        await message.channel.send(string)
+
 
 
 client.run(read_token())

@@ -243,11 +243,12 @@ def total(player_id: int) -> Total:
     return total_obj
 
 
-def wins_rank(players: dict) -> str:
+def wins_rank(players: dict, daily=False) -> str:
     rank_list = []
+    date = "7" if not daily else "1"
 
     for player in players:
-        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=7')
+        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=' + date)
         wins = json.loads(r.text)["win"]
 
         try:
@@ -259,15 +260,20 @@ def wins_rank(players: dict) -> str:
 
     rank_list.sort(key=lambda t: int(t[1]), reverse=True)
 
-    string = "**Top victorias (7 dias) \n"
+    string = "**Top victorias (7 dias) \n" if not daily else ":trophy:   **Top victorias HOY   :trophy: \n"
     string += ("-" * 30) + "** \n"
 
     string += ":first_place: **`" + rank_list[0][1] + " wins`** --> **" + str(rank_list[0][0]) + "** \n"
     string += ":second_place: **`" + rank_list[1][1] + " wins`** --> **" + str(rank_list[1][0]) + "** \n"
     string += ":third_place: **`" + rank_list[2][1] + " wins`** --> **" + str(rank_list[2][0]) + "** \n"
     string += "       **`" + rank_list[3][1] + " wins`** --> **" + str(rank_list[3][0]) + "** \n"
-    string += "       **`" + rank_list[4][1] + " wins`** --> **" + str(rank_list[4][0]) + "** \n"
-    string += "       **`" + rank_list[5][1] + " wins`** --> **" + str(rank_list[5][0]) + "** \n"
+
+    if daily:
+        winners_nick = [p[0] for p in rank_list if p[1] == rank_list[0][1]]
+        string += "\n\n\n"
+        for p in winners_nick:
+            string += "**Well played " + p + "!** \n"
+
 
     return string
 
