@@ -216,7 +216,7 @@ async def on_message(message):
 
 
     if message.content.startswith("!vicio"):
-        await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=3)
+        await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
 
         vicios_hoy, vicios_semana = get_vicios(players)
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
