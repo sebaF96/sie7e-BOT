@@ -99,7 +99,7 @@ def format_time_ago(timestamp):
         minutes = int(time_ago / 60)
         return "hace " + str(minutes) + " min aprox."
 
-    return "hace " + time_ago + " seg aprox."
+    return "hace " + str(time_ago) + " seg aprox."
 
 
 def stats(player_id: int) -> Stats:
