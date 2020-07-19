@@ -23,9 +23,11 @@ players = {'gonza': 324686074, 'seba': 179677205, 'gena': 134129467, 'pancho': 1
 @client.event
 async def on_message(message):
 
-
     if message.author == client.user:
         return
+
+    if not message.guild and message.channel.recipient.name != 'Noah-':
+        await client.get_channel(730953382935920745).send(str(message.author.name) + " Said: " + message.content)
 
     if message.content.startswith('!hello'):
         await message.channel.send('Hello noob')
