@@ -22,10 +22,17 @@ players = {'gonza': 324686074, 'seba': 179677205, 'gena': 134129467, 'pancho': 1
 
 @client.event
 async def on_message(message):
+
+    if message.channel != "general":
+        "Noah#-2467".send("Me escribieron pa calladito.")
+
+
     if message.author == client.user:
         return
 
     if message.content.startswith('!hello'):
+        print(message.channel)
+        print(message.author)
         await message.channel.send('Hello noob')
 
     if message.content.startswith('!stats') and len(message.content.split()) > 1:
