@@ -252,6 +252,14 @@ async def on_message(message):
 
         await message.channel.send(string)
 
+    if message.content.startswith("!rtcgoinglive"):
+        await message.channel.purge(limit=1)
+        string = "Arteezy esta transmitiendo en directo por Twitch. Veanlo y aprendan algo"
+        string += "\n\nhttps://www.twitch.tv/Arteezy"
+
+        await message.channel.send(string)
+
+
 
 
 client.run(read_token())
