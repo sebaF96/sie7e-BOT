@@ -27,6 +27,12 @@ def get_hero_picture(icon=False) -> dict:
         if icon:
             for hero in full_hero_dict:
                 min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['icon'])
+
+            # Void Spirit icon in original URL is bugged, OpenDota web is using this url
+            min_hero_dict[126] = "https://www.opendota.com/assets/images/dota2/heroes/126_icon.png"
+            # SnapFire icon in original URL is bugged, OpenDota web is using this url
+            min_hero_dict[128] = "https://www.opendota.com/assets/images/dota2/heroes/128_icon.png"
+
         else:
             for hero in full_hero_dict:
                 min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['img'])
