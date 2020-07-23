@@ -5,6 +5,8 @@ from objects import Last, Total, Avg, Stats
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
 
 def get_hero_dict() -> dict:
     response = requests.get('https://api.opendota.com/api/heroes')
@@ -46,11 +48,16 @@ HERO_ICON = get_hero_picture(icon=True)
 
 
 def get_nick(player_id: int):
+    steam_api_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
+        "STEAM_APIKEY") + "&steamids="
 
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
-    profile = json.loads(response.text)
+    steam_id = json.loads(response.text)["profile"]["steamid"]
 
-    return profile["profile"]["personaname"]
+    response = requests.get(steam_api_url + str(steam_id))
+    steam_profile = json.loads(response.text)
+
+    return steam_profile["response"]["players"][0]["personaname"]
 
 
 def get_avatar_url(player_id: int):
@@ -199,6 +206,8 @@ def last(player_id: int) -> Last:
     last_game.set_time_ago(format_time_ago(match['start_time'] + match['duration']))
     last_game.set_build(get_build(match["match_id"], match["player_slot"]))
 
+    requests.post("https://api.opendota.com/api/request/" + str(match["match_id"]))
+
     return last_game
 
 
@@ -281,7 +290,6 @@ def get_joke() -> dict:
 
 def get_playerssummary_url():
     with open("steam_ids.json", 'r') as fd:
-        load_dotenv()
         base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
             "STEAM_APIKEY") + "&steamids="
         my_players_dict = json.loads(fd.read())
