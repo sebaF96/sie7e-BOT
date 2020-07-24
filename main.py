@@ -246,6 +246,31 @@ async def on_message(message):
 
         await message.channel.send(embed=embed)
 
+    if message.content.startswith('!record') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+        else:
+            try:
+                total_obj = total(players[message.content.split()[1]])
+                embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
+                                      description="Contador de todas las partidas jugadas")
+                embed.set_thumbnail(url=total_obj.get_thumbnail())
+
+                embed.add_field(name="Partidas", value=total_obj.get_total_games())
+                embed.add_field(name="Winrate", value=total_obj.get_winrate())
+                embed.add_field(name="Kills", value=total_obj.get_kills())
+                embed.add_field(name="Muertes", value=total_obj.get_muertes())
+                embed.add_field(name="Assists", value=total_obj.get_assists())
+                embed.add_field(name="Last Hits", value=total_obj.get_lh())
+                embed.add_field(name="Denegados", value=total_obj.get_denegados())
+                embed.add_field(name="Daño", value=total_obj.get_dano())
+                embed.set_footer(text="Cortesia de sie7e-BOT",
+                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+
+                await message.channel.send(embed=embed)
+            except KeyError:
+                await message.channel.send("Tiene el perfil privado esa caquita")
+
     if message.content.startswith("!displaydayliwinners"):
         await message.channel.purge(limit=1)
         string = wins_rank(players, daily=True)
