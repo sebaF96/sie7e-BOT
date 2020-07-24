@@ -134,6 +134,7 @@ def show_help() -> str:
     string += "**`!last <player>`** ---> muestra la ultima partida de ese player\n"
     string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
     string += "**`!total <player>`** ---> muestra los totales de ese player\n"
+    string += "**`!records <player>`** ---> muestra los records de ese player en distintos games\n"
     string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 7 dias\n"
     string += "**`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento\n"
     string += "**`!vicio`** ---> ranking de partidas jugadas hoy y en la semana\n"
