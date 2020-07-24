@@ -220,6 +220,7 @@ class Records:
         self.__tower_damage = str
         self.__hero_healing = str
         self.__last_hits = str
+        self.__denies = str
 
     def get_titulo(self):
         return self.__titulo
@@ -286,3 +287,9 @@ class Records:
 
     def set_last_hits(self, last_hits):
         self.__last_hits = last_hits
+
+    def get_denies(self):
+        return self.__denies
+
+    def set_denies(self, denies):
+        self.__denies = denies
