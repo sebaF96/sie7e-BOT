@@ -383,13 +383,13 @@ def get_records(player_id):
     record.set_deaths(str(deaths_game["deaths"]) + " (" + HERO_DICT[deaths_game["hero_id"]] + ")")
 
     damage_game = sorted([g for g in games_list if g["hero_damage"] is not None], key=lambda x: x["hero_damage"], reverse=True)[0]
-    record.set_hero_damage(str(damage_game["hero_damage"]) + " (" + HERO_DICT[damage_game["hero_id"]] + ")")
+    record.set_hero_damage(str("{:,}".format(damage_game["hero_damage"]).replace(',', '.')) + " (" + HERO_DICT[damage_game["hero_id"]] + ")")
 
     tower_damage_game = sorted([g for g in games_list if g["tower_damage"] is not None], key=lambda x: x["tower_damage"], reverse=True)[0]
-    record.set_tower_damage(str(tower_damage_game["tower_damage"]) + " (" + HERO_DICT[tower_damage_game["hero_id"]] + ")")
+    record.set_tower_damage(str("{:,}".format(tower_damage_game["tower_damage"]).replace(',', '.')) + " (" + HERO_DICT[tower_damage_game["hero_id"]] + ")")
 
     heal_game = sorted([g for g in games_list if g["hero_healing"] is not None], key=lambda x: x["hero_healing"], reverse=True)[0]
-    record.set_hero_healing(str(heal_game["hero_healing"]) + " (" + HERO_DICT[heal_game["hero_id"]] + ")")
+    record.set_hero_healing(str("{:,}".format(heal_game["hero_healing"]).replace(',', '.')) + " (" + HERO_DICT[heal_game["hero_id"]] + ")")
 
     denies_game = sorted(games_list, key=lambda x: x["denies"], reverse=True)[0]
     record.set_denies(str(denies_game["denies"]) + " (" + HERO_DICT[denies_game["hero_id"]] + ")")
