@@ -204,3 +204,85 @@ class Stats:
 
     def get_descripcion(self):
         return self.__descripcion
+
+
+class Records:
+    def __init__(self, titulo, thumbnail):
+        self.__titulo = titulo
+        self.__thumbnail = thumbnail
+        self.__duration = str
+        self.__epm = str
+        self.__opm = str
+        self.__kills = str
+        self.__assists = str
+        self.__hero_damage = str
+        self.__tower_damage = str
+        self.__hero_healing = str
+        self.__last_hits = str
+        self.__denies = str
+
+    def get_titulo(self):
+        return self.__titulo
+
+    def get_thumbnail(self):
+        return self.__thumbnail
+
+    def get_duration(self):
+        return self.__duration
+
+    def set_duration(self, duration):
+        self.__duration = duration
+
+    def get_epm(self):
+        return self.__epm
+
+    def set_epm(self, epm):
+        self.__epm = epm
+
+    def get_opm(self):
+        return self.__opm
+
+    def set_opm(self, opm):
+        self.__opm = opm
+
+    def get_kills(self):
+        return self.__kills
+
+    def set_kills(self, kills):
+        self.__kills = kills
+
+    def get_assists(self):
+        return self.__assists
+
+    def set_assists(self, assists):
+        self.__assists = assists
+
+    def get_hero_damage(self):
+        return self.__hero_damage
+
+    def set_hero_damage(self, hero_damage):
+        self.__hero_damage = hero_damage
+
+    def get_tower_damage(self):
+        return self.__tower_damage
+
+    def set_tower_damage(self, tower_damage):
+        self.__tower_damage = tower_damage
+
+    def get_hero_healing(self):
+        return self.__hero_healing
+
+    def set_hero_healing(self, hero_healing):
+        self.__hero_healing = hero_healing
+
+    def get_last_hits(self):
+        return self.__last_hits
+
+    def set_last_hits(self, last_hits):
+        self.__last_hits = last_hits
+
+    def get_denies(self):
+        return self.__denies
+
+    def set_denies(self, denies):
+        self.__denies = denies

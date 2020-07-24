@@ -1,5 +1,6 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on, get_vicios
+from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on,\
+    get_vicios, get_records
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
@@ -245,6 +246,34 @@ async def on_message(message):
         embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
 
         await message.channel.send(embed=embed)
+
+    if message.content.startswith('!record') and len(message.content.split()) > 1:
+        if message.content.split()[1] not in players:
+            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+        else:
+            try:
+                records_obj = get_records(players[message.content.split()[1]])
+                embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
+                                      description="Records de todas las partidas jugadas")
+                embed.set_thumbnail(url=records_obj.get_thumbnail())
+
+                embed.add_field(name="Kills", value=records_obj.get_kills(), inline=False)
+                embed.add_field(name="OPM", value=records_obj.get_opm(), inline=False)
+                embed.add_field(name="EPM", value=records_obj.get_epm(), inline=False)
+                embed.add_field(name="Last Hits", value=records_obj.get_last_hits(), inline=False)
+                embed.add_field(name="Denegados", value=records_obj.get_denies(), inline=False)
+                embed.add_field(name="Duracion", value=records_obj.get_duration(), inline=False)
+                embed.add_field(name="Assists", value=records_obj.get_assists(), inline=False)
+                embed.add_field(name="Daño", value=records_obj.get_hero_damage(), inline=False)
+                embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
+                embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
+
+                embed.set_footer(text="Cortesia de sie7e-BOT",
+                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+
+                await message.channel.send(embed=embed)
+            except KeyError:
+                await message.channel.send("Tiene el perfil privado esa caquita")
 
     if message.content.startswith("!displaydayliwinners"):
         await message.channel.purge(limit=1)
