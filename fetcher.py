@@ -379,9 +379,6 @@ def get_records(player_id):
     lh_game = sorted(games_list, key=lambda x: x["last_hits"], reverse=True)[0]
     record.set_last_hits(str(lh_game["last_hits"]) + " (" + HERO_DICT[lh_game["hero_id"]] + ")")
 
-    deaths_game = sorted(games_list, key=lambda x: x["deaths"], reverse=True)[0]
-    record.set_deaths(str(deaths_game["deaths"]) + " (" + HERO_DICT[deaths_game["hero_id"]] + ")")
-
     damage_game = sorted([g for g in games_list if g["hero_damage"] is not None], key=lambda x: x["hero_damage"], reverse=True)[0]
     record.set_hero_damage(str("{:,}".format(damage_game["hero_damage"]).replace(',', '.')) + " (" + HERO_DICT[damage_game["hero_id"]] + ")")
 

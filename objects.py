@@ -214,7 +214,6 @@ class Records:
         self.__epm = str
         self.__opm = str
         self.__kills = str
-        self.__deaths = str
         self.__assists = str
         self.__hero_damage = str
         self.__tower_damage = str
@@ -251,12 +250,6 @@ class Records:
 
     def set_kills(self, kills):
         self.__kills = kills
-
-    def get_deaths(self):
-        return self.__deaths
-
-    def set_deaths(self, deaths):
-        self.__deaths = deaths
 
     def get_assists(self):
         return self.__assists
