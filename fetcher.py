@@ -61,10 +61,16 @@ def get_nick(player_id: int):
 
 
 def get_avatar_url(player_id: int):
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
-    profile = json.loads(response.text)
+    steam_api_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
+        "STEAM_APIKEY") + "&steamids="
 
-    return profile["profile"]["avatarfull"]
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
+    steam_id = json.loads(response.text)["profile"]["steamid"]
+
+    response = requests.get(steam_api_url + str(steam_id))
+    steam_profile = json.loads(response.text)
+
+    return steam_profile["response"]["players"][0]["avatarfull"]
 
 
 def is_radiant(player_slot: int) -> bool:
