@@ -24,21 +24,21 @@ players = {'gonza': 324686074, 'seba': 179677205, 'gena': 134129467, 'pancho': 1
 @client.event
 async def on_message(message):
 
-    if message.author == client.user:
+    if message.author == client.user or not message.content.startswith("!"):
         return
 
-    if not message.guild and message.channel.recipient.name != 'Noah-':
-        await client.get_channel(730953382935920745).send(str(message.author.name) + " Said: " + message.content)
+    command = message.content.split()[0].lower()
+    argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
-    if message.content.startswith('!hello'):
+    if command.startswith('!hello'):
         await message.channel.send('Hello noob')
 
-    if message.content.startswith('!stats') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!stats') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                stats_obj = stats(players[message.content.split()[1]])
+                stats_obj = stats(players[argument])
                 embed = discord.Embed(title=stats_obj.get_titulo(), description=stats_obj.get_descripcion(),
                                       colour=discord.Color.light_grey())
 
@@ -54,17 +54,17 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith('!help') or message.content.startswith('!commands'):
+    if command.startswith('!help') or command.startswith('!commands'):
         await message.channel.send(show_help())
 
-    if message.content.startswith('!refresh') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!refresh') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
-            refresh(players[message.content.split()[1]])
-            await message.channel.send("Ok (aguanta 1 toque)")
+            refresh(players[argument])
+            await message.channel.send("Ok")
 
-    if message.content.startswith('!players'):
+    if command.startswith('!players'):
         string = ""
         for key in players:
             try:
@@ -75,22 +75,22 @@ async def on_message(message):
 
         await message.channel.send(string)
 
-    if message.content.startswith('!wl') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!wl') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                await message.channel.send(w_l(players[message.content.split()[1]]))
+                await message.channel.send(w_l(players[argument]))
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith('!last') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!last') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
 
-                last_game = last(players[message.content.split()[1]])
+                last_game = last(players[argument])
 
                 save_build_image(last_game.get_build())
                 file = discord.File("last_match_items.png", filename="image.png")
@@ -118,12 +118,12 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith('!avg') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!avg') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                avg_obj = avg(players[message.content.split()[1]])
+                avg_obj = avg(players[argument])
                 embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
                                       description="Estadisticas de las ultimas 20 partidas")
                 embed.set_thumbnail(url=avg_obj.get_thumbnail())
@@ -144,12 +144,12 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith('!total') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!total') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                total_obj = total(players[message.content.split()[1]])
+                total_obj = total(players[argument])
                 embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
                                       description="Contador de todas las partidas jugadas")
                 embed.set_thumbnail(url=total_obj.get_thumbnail())
@@ -169,12 +169,12 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith('!wins'):
+    if command.startswith('!wins'):
         string = wins_rank(players)
 
         await message.channel.send(string)
 
-    if message.content.startswith("!joke"):
+    if command.startswith("!joke"):
         await message.channel.purge(limit=1)
         joke = get_joke()
         if joke["type"] == "single":
@@ -186,7 +186,7 @@ async def on_message(message):
 
             await message.channel.send(joke["delivery"])
 
-    if message.content.startswith("!on"):
+    if command.startswith("!on"):
         dota_players, online_players = get_on()
 
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
@@ -219,7 +219,7 @@ async def on_message(message):
 
         await message.channel.send(embed=embed)
 
-    if message.content.startswith("!vicio"):
+    if command.startswith("!vicio"):
         await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
 
         vicios_hoy, vicios_semana = get_vicios(players)
@@ -247,12 +247,12 @@ async def on_message(message):
 
         await message.channel.send(embed=embed)
 
-    if message.content.startswith('!record') and len(message.content.split()) > 1:
-        if message.content.split()[1] not in players:
+    if command.startswith('!record') and argument:
+        if argument not in players:
             await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
         else:
             try:
-                records_obj = get_records(players[message.content.split()[1]])
+                records_obj = get_records(players[argument])
                 embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
                                       description="Records de todas las partidas jugadas")
                 embed.set_thumbnail(url=records_obj.get_thumbnail())
@@ -275,13 +275,13 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if message.content.startswith("!displaydayliwinners"):
+    if command.startswith("!displaydayliwinners"):
         await message.channel.purge(limit=1)
         string = wins_rank(players, daily=True)
 
         await message.channel.send(string)
 
-    if message.content.startswith("!rtcgoinglive"):
+    if command.startswith("!rtcgoinglive"):
         await message.channel.purge(limit=1)
         string = "Arteezy esta transmitiendo en directo por Twitch. Veanlo y aprendan algo"
         string += "\n\nhttps://www.twitch.tv/Arteezy"
