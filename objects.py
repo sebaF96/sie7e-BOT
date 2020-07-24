@@ -211,11 +211,11 @@ class Records:
         self.__titulo = titulo
         self.__thumbnail = thumbnail
         self.__duration = str
-        self.__epm = int
-        self.__opm = int
-        self.__kills = int
-        self.__deaths = int
-        self.__assists = int
+        self.__epm = str
+        self.__opm = str
+        self.__kills = str
+        self.__deaths = str
+        self.__assists = str
         self.__hero_damage = str
         self.__tower_damage = str
         self.__hero_healing = str

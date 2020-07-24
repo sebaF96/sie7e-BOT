@@ -1,7 +1,7 @@
 import json
 import requests
 import time
-from objects import Last, Total, Avg, Stats
+from objects import Last, Total, Avg, Stats, Records
 from dotenv import load_dotenv
 import os
 
@@ -61,7 +61,6 @@ def get_nick(player_id: int):
 
 
 def get_avatar_url(player_id: int):
-
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
     profile = json.loads(response.text)
 
@@ -277,7 +276,6 @@ def wins_rank(players: dict, daily=False) -> str:
         for p in winners_nick:
             string += "**Well played " + p + "!** \n"
 
-
     return string
 
 
@@ -351,3 +349,46 @@ def get_vicios(players):
     vicios_hoy.sort(key=lambda x: x[1], reverse=True)
 
     return vicios_hoy[:4], vicios_semana[:4]
+
+
+def get_records(player_id):
+    record = Records(titulo="Records de " + get_nick(player_id), thumbnail=get_avatar_url(player_id))
+
+    url = "https://api.opendota.com/api/players/" + str(player_id) + \
+          "/matches?project=xp_per_min&project=gold_per_min&project=tower_damage&project=hero_damage" \
+          "&project=last_hits&project=start_time&project=kills&project=hero_id&project=denies&project" \
+          "=assists&project=deaths&project=hero_healing "
+
+    games_list = json.loads(requests.get(url).text)
+
+    kills_game = sorted(games_list, key=lambda x: x["kills"], reverse=True)[0]
+    record.set_kills(str(kills_game["kills"]) + " (" + HERO_DICT[kills_game["hero_id"]] + ")")
+
+    opm_game = sorted(games_list, key=lambda x: x["gold_per_min"], reverse=True)[0]
+    record.set_opm(str(opm_game["gold_per_min"]) + " (" + HERO_DICT[opm_game["hero_id"]] + ")")
+
+    epm_game = sorted(games_list, key=lambda x: x["xp_per_min"], reverse=True)[0]
+    record.set_epm(str(epm_game["xp_per_min"]) + " (" + HERO_DICT[epm_game["hero_id"]] + ")")
+
+    duration_game = sorted(games_list, key=lambda x: x["duration"], reverse=True)[0]
+    record.set_duration(format_duration(duration_game["duration"]) + " (" + HERO_DICT[duration_game["hero_id"]] + ")")
+
+    assists_game = sorted(games_list, key=lambda x: x["assists"], reverse=True)[0]
+    record.set_assists(str(assists_game["assists"]) + " (" + HERO_DICT[assists_game["hero_id"]] + ")")
+
+    lh_game = sorted(games_list, key=lambda x: x["last_hits"], reverse=True)[0]
+    record.set_last_hits(str(lh_game["last_hits"]) + " (" + HERO_DICT[lh_game["hero_id"]] + ")")
+
+    deaths_game = sorted(games_list, key=lambda x: x["deaths"], reverse=True)[0]
+    record.set_deaths(str(deaths_game["deaths"]) + " (" + HERO_DICT[deaths_game["hero_id"]] + ")")
+
+    damage_game = sorted(games_list, key=lambda x: x["hero_damage"], reverse=True)[0]
+    record.set_hero_damage(str(damage_game["hero_damage"]) + " (" + HERO_DICT[damage_game["hero_id"]] + ")")
+
+    tower_damage_game = sorted(games_list, key=lambda x: x["tower_damage"], reverse=True)[0]
+    record.set_tower_damage(str(tower_damage_game["tower_damage"]) + " (" + HERO_DICT[tower_damage_game["hero_id"]] + ")")
+
+    heal_game = sorted(games_list, key=lambda x: x["hero_healing"], reverse=True)[0]
+    record.set_hero_healing(str(heal_game["hero_healing"]) + " (" + HERO_DICT[heal_game["hero_id"]] + ")")
+
+    return record
