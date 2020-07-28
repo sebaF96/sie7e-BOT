@@ -286,7 +286,7 @@ async def on_message(message):
 
         await message.channel.send(embed=embed)
 
-    if command.startswith("!displaydayliwinners"):
+    if command.startswith("!displaydailywinners"):
         await message.channel.purge(limit=1)
         string = wins_rank(players, daily=True)
 

@@ -255,20 +255,34 @@ def total(player_id: int) -> Total:
     return total_obj
 
 
+def fetch_wins(player_id, queue, date):
+    r = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?date=' + date)
+    wins = json.loads(r.text)["win"]
+
+    try:
+        player_name = get_nick(player_id)
+        queue.put((player_name, str(wins)))
+    except KeyError:
+        pass
+
+
+
 def wins_rank(players: dict, daily=False) -> str:
-    rank_list = []
     date = "7" if not daily else "1"
+    threads_list = []
+    rank_list = []
+    queue = Queue()
 
     for player in players:
-        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=' + date)
-        wins = json.loads(r.text)["win"]
+        thread = threading.Thread(target=fetch_wins, args=(players[player], queue, date))
+        thread.start()
+        threads_list.append(thread)
 
-        try:
-            player_name = get_nick(players[player])
-        except KeyError:
-            continue
+    for thread in threads_list:
+        thread.join()
 
-        rank_list.append((player_name, str(wins)))
+    while not queue.empty():
+        rank_list.append(queue.get())
 
     rank_list.sort(key=lambda t: int(t[1]), reverse=True)
 
