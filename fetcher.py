@@ -347,27 +347,45 @@ def get_on() -> (list, list):
     return dota_players_nick, online_players_nick
 
 
+def get_individual_vicio(player_id, queue_semana, queue_hoy):
+    r = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?date=7')
+    games_semana = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
+
+    if games_semana <= 3:
+        return
+
+    r = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?date=1')
+    games_hoy = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
+
+    try:
+        player_name = get_nick(player_id)
+        queue_semana.put((player_name, games_semana))
+        queue_hoy.put((player_name, games_hoy))
+    except KeyError:
+        pass
+
+
 def get_vicios(players):
-    vicios_hoy = []
-    vicios_semana = []
+    vicios_hoy, vicios_semana, threads_list = [], [], []
+    queue_semana, queue_hoy = Queue(), Queue()
 
     for player in players:
-        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=7')
-        games_semana = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
+        thread = threading.Thread(target=get_individual_vicio, args=(players[player], queue_semana, queue_hoy))
+        thread.start()
+        threads_list.append(thread)
 
-        if games_semana <= 3:
-            continue
 
-        r = requests.get('https://api.opendota.com/api/players/' + str(players[player]) + '/wl?date=1')
-        games_hoy = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
+    for thread in threads_list:
+        thread.join()
 
-        try:
-            player_name = get_nick(players[player])
-        except KeyError:
-            continue
+    while not queue_hoy.empty():
+        vicios_hoy.append(queue_hoy.get())
 
-        vicios_semana.append((player_name, games_semana))
-        vicios_hoy.append((player_name, games_hoy))
+    # Using 2 individuals whiles for preventing some kind of error if one player is
+    # inserted in one Queue and not in the another one
+
+    while not queue_semana.empty():
+        vicios_semana.append(queue_semana.get())
 
     vicios_semana.sort(key=lambda x: x[1], reverse=True)
     vicios_hoy.sort(key=lambda x: x[1], reverse=True)
