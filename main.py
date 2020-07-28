@@ -269,7 +269,7 @@ async def on_message(message):
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
 
-    if command.startswith('!lp'):
+    if command.startswith('!lp') or command.startswith("!lg"):
         lista = get_last_played(players)
         embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
                               description="Lista de players que han terminado una partida recientemente")
