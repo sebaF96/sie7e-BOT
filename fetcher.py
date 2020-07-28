@@ -215,7 +215,6 @@ def last(player_id: int) -> Last:
     last_game.set_time_ago(format_time_ago(match['start_time'] + match['duration']))
     last_game.set_build(get_build(match["match_id"], match["player_slot"]))
 
-    requests.post("https://api.opendota.com/api/request/" + str(match["match_id"]))
 
     return last_game
 
