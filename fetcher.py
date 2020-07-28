@@ -4,6 +4,8 @@ import time
 from objects import Last, Total, Avg, Stats, Records
 from dotenv import load_dotenv
 import os
+from multiprocessing import Queue
+import threading
 
 load_dotenv()
 
@@ -144,6 +146,7 @@ def show_help() -> str:
     string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 7 dias\n"
     string += "**`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento\n"
     string += "**`!vicio`** ---> ranking de partidas jugadas hoy y en la semana\n"
+    string += "**`!lp`** ---> muestra los players que han jugado mas recientemente\n"
 
     return string
 
@@ -399,3 +402,41 @@ def get_records(player_id):
     record.set_denies(str(denies_game["denies"]) + " (" + HERO_DICT[denies_game["hero_id"]] + ")")
 
     return record
+
+
+def get_player_last_time(player_id, queue):
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
+    recent_matches = json.loads(response.text)
+    match = recent_matches[0]
+    radiant = is_radiant(match['player_slot'])
+
+    player_nick = ":green_circle:   " if radiant == match["radiant_win"] else ":red_circle:   "
+    player_nick += get_nick(player_id)
+    player_timestamp = match["start_time"] + match["duration"]
+    player_time_ago = format_time_ago(player_timestamp)
+
+    player_tuple = (player_nick, player_timestamp, player_time_ago)
+
+    queue.put(player_tuple)
+
+
+def get_last_played(players) -> list:
+    queue = Queue()
+    threads_list = []
+    players_timestamps = []
+
+    for player in players:
+        thread = threading.Thread(target=get_player_last_time, args=(players[player], queue))
+        thread.start()
+        threads_list.append(thread)
+
+    for thread in threads_list:
+        thread.join()
+
+    for i in range(len(players)):
+        players_timestamps.append(queue.get())
+
+    players_timestamps.sort(key=lambda p: p[1], reverse=True)
+
+
+    return players_timestamps[:5]

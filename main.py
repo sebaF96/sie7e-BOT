@@ -1,6 +1,6 @@
 import discord
 from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on,\
-    get_vicios, get_records
+    get_vicios, get_records, get_last_played
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
@@ -192,10 +192,7 @@ async def on_message(message):
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
                               description="Players que estan conectados en este momento")
         embed.set_thumbnail(
-            url="https://png2.cleanpng.com/sh/e4493bf635aed2e7e0a24da82be72430"
-                "/L0KzQYm4UcA5N5JwjpH0aYP2gLBuTfRwfJIySp91ZXHqhba0jBYudJZsfdDtcz3ndbfsjwNmNZDrReZxZT3kfrTwhf51e15xReJ3"
-                "Zz3khrL7gf4ueJ16i58AYnW3RIaBhfQxaWg1T5CAM0O5Qom9UME2PGI7UKgBN0C7RYWATwBvbz==/kisspng-dota-2-league-"
-                "of-legends-defense-of-the-ancients-l-png-avatan-plus-5be4458ed0a707.5336286015416866708547.png")
+            url="https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png")
 
         embed.set_author(name="Steam", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/"
                                                 "Steam_icon_logo.svg/1024px-Steam_icon_logo.svg.png")
@@ -226,10 +223,7 @@ async def on_message(message):
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
                               description="Ranking de partidas jugadas")
         embed.set_thumbnail(
-            url="https://png2.cleanpng.com/sh/e4493bf635aed2e7e0a24da82be72430"
-                "/L0KzQYm4UcA5N5JwjpH0aYP2gLBuTfRwfJIySp91ZXHqhba0jBYudJZsfdDtcz3ndbfsjwNmNZDrReZxZT3kfrTwhf51e15xReJ3"
-                "Zz3khrL7gf4ueJ16i58AYnW3RIaBhfQxaWg1T5CAM0O5Qom9UME2PGI7UKgBN0C7RYWATwBvbz==/kisspng-dota-2-league-"
-                "of-legends-defense-of-the-ancients-l-png-avatan-plus-5be4458ed0a707.5336286015416866708547.png")
+            url="https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png")
 
         embed.set_footer(text="Cortesia de sie7e-BOT",
                          icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
@@ -274,6 +268,23 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             except KeyError:
                 await message.channel.send("Tiene el perfil privado esa caquita")
+
+    if command.startswith('!lp'):
+        lista = get_last_played(players)
+        embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
+                              description="Lista de players que han terminado una partida recientemente")
+        embed.set_thumbnail(
+            url="https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png")
+
+        embed.set_author(name="Steam", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/"
+                                                "Steam_icon_logo.svg/1024px-Steam_icon_logo.svg.png")
+        embed.set_footer(text="Cortesia de sie7e-BOT",
+                         icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+
+        for p in lista:
+            embed.add_field(name=p[0], value=p[2], inline=False)
+
+        await message.channel.send(embed=embed)
 
     if command.startswith("!displaydayliwinners"):
         await message.channel.purge(limit=1)
