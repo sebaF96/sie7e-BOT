@@ -447,7 +447,7 @@ def get_last_played(players) -> list:
     for thread in threads_list:
         thread.join()
 
-    for i in range(len(players)):
+    while not queue.empty():
         players_timestamps.append(queue.get())
 
     players_timestamps.sort(key=lambda p: p[1], reverse=True)
