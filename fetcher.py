@@ -96,11 +96,11 @@ def format_time_ago(timestamp):
         return "recien."
 
     if time_ago >= 86400:
-        days = int(time_ago / 86400)
+        days = round(time_ago / 86400)
         return "hace " + str(days) + "d aprox."
 
     if time_ago >= 3600:
-        hours = int(time_ago / 3600)
+        hours = round(time_ago / 3600)
         return "hace " + str(hours) + "h aprox."
 
     if time_ago >= 60:
