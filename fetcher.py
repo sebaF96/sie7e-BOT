@@ -113,7 +113,7 @@ def format_time_ago(timestamp):
 def stats(player_id: int) -> Stats:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    recent_matches = [m for m in recent_matches if m["game_mode"] != 19]
+    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
     games = []
 
     for i in range(0, 5, 1):
@@ -192,7 +192,7 @@ def get_build(match_id: int, player_slot: int) -> list:
 def last(player_id: int) -> Last:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    recent_matches = [m for m in recent_matches if m["game_mode"] != 19]
+    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]    # 22 is ranked
     match = recent_matches[0]
     radiant = is_radiant(match['player_slot'])
 
