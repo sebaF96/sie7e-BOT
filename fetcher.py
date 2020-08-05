@@ -22,26 +22,27 @@ def get_hero_dict() -> dict:
 
 
 def get_hero_picture(icon=False) -> dict:
+
+    response = requests.get("https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json")
+    full_hero_dict = json.loads(response.text)
     base_url = "https://steamcdn-a.akamaihd.net"
-    with open('heroes.json', 'r') as file:
-        data = file.read()
-        full_hero_dict = json.loads(data)
-        min_hero_dict = {}
 
-        if icon:
-            for hero in full_hero_dict:
-                min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['icon'])
+    min_hero_dict = {}
 
-            # Void Spirit icon in original URL is bugged, OpenDota web is using this url
-            min_hero_dict[126] = "https://www.opendota.com/assets/images/dota2/heroes/126_icon.png"
-            # SnapFire icon in original URL is bugged, OpenDota web is using this url
-            min_hero_dict[128] = "https://www.opendota.com/assets/images/dota2/heroes/128_icon.png"
+    if icon:
+        for hero in full_hero_dict:
+            min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['icon'])
 
-        else:
-            for hero in full_hero_dict:
-                min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['img'])
+        # Void Spirit icon in original URL is bugged, OpenDota web is using this url
+        min_hero_dict[126] = "https://www.opendota.com/assets/images/dota2/heroes/126_icon.png"
+        # SnapFire icon in original URL is bugged, OpenDota web is using this url
+        min_hero_dict[128] = "https://www.opendota.com/assets/images/dota2/heroes/128_icon.png"
 
-        return min_hero_dict
+    else:
+        for hero in full_hero_dict:
+            min_hero_dict[int(full_hero_dict[hero]["id"])] = base_url + str(full_hero_dict[hero]['img'])
+
+    return min_hero_dict
 
 
 HERO_DICT = get_hero_dict()
