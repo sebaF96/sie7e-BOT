@@ -5,14 +5,16 @@ import json
 
 
 def fetch_items():
-    with open("items.json", "r") as file:
-        full_items_dict = json.loads(file.read())
-        min_items_dict = {}
-        base_url = "https://steamcdn-a.akamaihd.net"
-        for item in full_items_dict:
-            min_items_dict[full_items_dict[item]["id"]] = base_url + full_items_dict[item]["img"]
+    print("Entro en fetch_items")
+    response = requests.get("https://raw.githubusercontent.com/odota/dotaconstants/master/build/items.json")
+    full_items_dict = json.loads(response.text)
+    min_items_dict = {}
+    base_url = "https://steamcdn-a.akamaihd.net"
+    for item in full_items_dict:
+        min_items_dict[full_items_dict[item]["id"]] = base_url + full_items_dict[item]["img"]
 
-        return min_items_dict
+    print("Parece q salio bien")
+    return min_items_dict
 
 
 ITEMS_DICT = fetch_items()
