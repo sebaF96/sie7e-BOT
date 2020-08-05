@@ -5,7 +5,6 @@ import json
 
 
 def fetch_items():
-    print("Entro en fetch_items")
     response = requests.get("https://raw.githubusercontent.com/odota/dotaconstants/master/build/items.json")
     full_items_dict = json.loads(response.text)
     min_items_dict = {}
@@ -13,7 +12,6 @@ def fetch_items():
     for item in full_items_dict:
         min_items_dict[full_items_dict[item]["id"]] = base_url + full_items_dict[item]["img"]
 
-    print("Parece q salio bien")
     return min_items_dict
 
 

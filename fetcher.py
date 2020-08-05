@@ -50,13 +50,18 @@ HERO_PICTURE = get_hero_picture()
 HERO_ICON = get_hero_picture(icon=True)
 
 
+def get_player_steamid(player_id: int):
+    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
+    steam_id = json.loads(response.text)["profile"]["steamid"]
+
+    return steam_id
+
+
 def get_nick(player_id: int):
     steam_api_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
         "STEAM_APIKEY") + "&steamids="
 
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
-    steam_id = json.loads(response.text)["profile"]["steamid"]
-
+    steam_id = get_player_steamid(player_id)
     response = requests.get(steam_api_url + str(steam_id))
     steam_profile = json.loads(response.text)
 
@@ -67,9 +72,7 @@ def get_avatar_url(player_id: int):
     steam_api_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
         "STEAM_APIKEY") + "&steamids="
 
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
-    steam_id = json.loads(response.text)["profile"]["steamid"]
-
+    steam_id = get_player_steamid(player_id)
     response = requests.get(steam_api_url + str(steam_id))
     steam_profile = json.loads(response.text)
 
@@ -311,17 +314,19 @@ def get_joke() -> dict:
 
 
 def get_playerssummary_url():
-    with open("steam_ids.json", 'r') as fd:
+    print("Entro en playersummary_url")
+    with open("players.json", 'r') as fd:
         base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
             "STEAM_APIKEY") + "&steamids="
         my_players_dict = json.loads(fd.read())
 
-        for idx, player in enumerate(my_players_dict["players"]):
-            if idx == len(my_players_dict["players"]) - 1:
-                base_url += str(player["steam_id"])
+        for idx, player_name in enumerate(my_players_dict):
+            player_steam_id = get_player_steamid(my_players_dict[player_name])
+            if idx == len(my_players_dict) - 1:
+                base_url += str(player_steam_id)
                 break
 
-            base_url += str(player["steam_id"]) + ","
+            base_url += str(player_steam_id) + ","
         return base_url
 
 

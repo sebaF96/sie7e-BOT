@@ -13,12 +13,14 @@ def read_token():
     return os.getenv('BOT_TOKEN')
 
 
-client = discord.Client()
+def read_players():
+    import json
+    with open("players.json", "r") as file:
+        return json.loads(file.read())
 
-players = {'gonza': 324686074, 'seba': 179677205, 'gena': 134129467, 'pancho': 137703388, 'yair': 156552375,
-           'pela': 130817647, 'jorge': 153309908,
-           'chino': 135179013, 'statham': 145875771, 'lucas': 275221784, 'snoop': 354096578, 'negro': 140411170,
-           'dobby': 190501988}
+
+client = discord.Client()
+players = read_players()
 
 
 @client.event
