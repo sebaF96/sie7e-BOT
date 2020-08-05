@@ -27,6 +27,9 @@ async def on_message(message):
     if message.author == client.user or not message.content.startswith("!"):
         return
 
+    if not message.guild and message.channel.recipient.name != 'Noah-':
+        await client.get_channel(730953382935920745).send(str(message.author.name) + " Said: " + message.content)
+
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
