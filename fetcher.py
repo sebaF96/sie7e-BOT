@@ -314,7 +314,6 @@ def get_joke() -> dict:
 
 
 def get_playerssummary_url():
-    print("Entro en playersummary_url")
     with open("players.json", 'r') as fd:
         base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
             "STEAM_APIKEY") + "&steamids="

@@ -1,10 +1,12 @@
 import discord
 from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on,\
-    get_vicios, get_records, get_last_played
+    get_vicios, get_records, get_last_played, format_time_ago
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
 import os
+import time
+import datetime
 
 load_dotenv()
 
@@ -21,6 +23,7 @@ def read_players():
 
 client = discord.Client()
 players = read_players()
+start_time = int(time.time())
 
 
 @client.event
@@ -297,11 +300,9 @@ async def on_message(message):
 
         await message.channel.send(string)
 
-    if command.startswith("!rtcgoinglive"):
-        await message.channel.purge(limit=1)
-        string = "Arteezy esta transmitiendo en directo por Twitch. Veanlo y aprendan algo"
-        string += "\n\nhttps://www.twitch.tv/Arteezy"
-
+    if command.startswith("!uptime"):
+        string = "I have been running for "
+        string += str(datetime.timedelta(seconds=int(time.time() - start_time)))
         await message.channel.send(string)
 
 
