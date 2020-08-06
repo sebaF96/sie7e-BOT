@@ -60,7 +60,9 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
 
             except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE)
+                await message.channel.send(Constants.PRIVATE_PROFILE.value)
+            except AttributeError:
+                pass
 
     if command.startswith('!help') or command.startswith('!commands'):
         await message.channel.send(show_help())
@@ -149,11 +151,11 @@ async def on_message(message):
 
                 await message.channel.send(embed=embed)
             except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE)
+                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!total') and argument:
         if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED)
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
                 total_obj = total(players[argument])
@@ -173,7 +175,7 @@ async def on_message(message):
 
                 await message.channel.send(embed=embed)
             except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE)
+                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!wins'):
         string = wins_rank(players)
@@ -267,7 +269,7 @@ async def on_message(message):
 
                 await message.channel.send(embed=embed)
             except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE)
+                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!lp') or command.startswith("!lg"):
         lista = get_last_played(players)

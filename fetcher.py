@@ -117,23 +117,28 @@ def format_time_ago(timestamp):
 def stats(player_id: int) -> Stats:
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
-    games = []
+    try:
+        recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
+        games = []
 
-    for i in range(0, 5, 1):
-        match = recent_matches[i]
-        radiant = is_radiant(match["player_slot"])
-        string = ":green_circle:   Gano" if radiant == match["radiant_win"] else ":red_circle:   Perdio"
-        string += " con "
-        string += HERO_DICT[match["hero_id"]] + " y salio "
-        string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"])
+        for i in range(0, 5, 1):
+            match = recent_matches[i]
+            radiant = is_radiant(match["player_slot"])
+            string = ":green_circle:   Gano" if radiant == match["radiant_win"] else ":red_circle:   Perdio"
+            string += " con "
+            string += HERO_DICT[match["hero_id"]] + " y salio "
+            string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"])
 
-        games.append(string)
+            games.append(string)
 
-    stats_obj = Stats(titulo="Ultimos 5 games de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
-                      game0=games[0], game1=games[1], game2=games[2], game3=games[3], game4=games[4])
+        stats_obj = Stats(titulo="Ultimos 5 games de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
+                          game0=games[0], game1=games[1], game2=games[2], game3=games[3], game4=games[4])
 
-    return stats_obj
+        return stats_obj
+
+    except TypeError or KeyError:
+        print("Too many requests in function stats!\nResponse:")
+        print(recent_matches)
 
 
 def show_help() -> str:
@@ -441,19 +446,26 @@ def get_records(player_id):
 
 
 def get_player_last_time(player_id, queue):
+
     response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    match = recent_matches[0]
-    radiant = is_radiant(match['player_slot'])
+    try:
+        match = recent_matches[0]
+        radiant = is_radiant(match['player_slot'])
 
-    player_nick = ":green_circle:   " if radiant == match["radiant_win"] else ":red_circle:   "
-    player_nick += get_nick(player_id)
-    player_timestamp = match["start_time"] + match["duration"]
-    player_time_ago = format_time_ago(player_timestamp)
+        player_nick = ":green_circle:   " if radiant == match["radiant_win"] else ":red_circle:   "
+        player_nick += get_nick(player_id)
+        player_timestamp = match["start_time"] + match["duration"]
+        player_time_ago = format_time_ago(player_timestamp)
 
-    player_tuple = (player_nick, player_timestamp, player_time_ago)
+        player_tuple = (player_nick, player_timestamp, player_time_ago)
 
-    queue.put(player_tuple)
+        queue.put(player_tuple)
+
+    except KeyError:
+        print("Too many requests!")
+        print("Response:")
+        print(recent_matches)
 
 
 def get_last_played(players) -> list:
