@@ -460,12 +460,15 @@ def get_player_last_time(player_id, queue):
 
         player_tuple = (player_nick, player_timestamp, player_time_ago)
 
+        print("Por hacer put en la queue desde hilo de ejecucion")
         queue.put(player_tuple)
 
     except KeyError:
         print("Too many requests!")
         print("Response:")
         print(recent_matches)
+    except BrokenPipeError:
+        print("Broken Pipe desde hilo de ejecucion")
 
 
 def get_last_played(players) -> list:
@@ -480,10 +483,12 @@ def get_last_played(players) -> list:
 
     for thread in threads_list:
         thread.join()
+    print("Hilos terminaron, por leer queue")
 
     while not queue.empty():
+        print("Leyendo queue")
         players_timestamps.append(queue.get())
-
+    print("Se leyo queue")
     players_timestamps.sort(key=lambda p: p[1], reverse=True)
 
 
