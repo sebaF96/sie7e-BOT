@@ -1,12 +1,13 @@
 import discord
 from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on,\
-    get_vicios, get_records, get_last_played, format_time_ago
+    get_vicios, get_records, get_last_played
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
 import os
 import time
 import datetime
+from constants import Constants
 
 load_dotenv()
 
@@ -33,7 +34,7 @@ async def on_message(message):
         return
 
     if not message.guild and message.channel.recipient.name != 'Noah-':
-        await client.get_channel(730953382935920745).send(str(message.author.name) + " Said: " + message.content)
+        await client.get_channel(Constants.ADMIN_PRIVATE_CHANNEL.value).send(str(message.author.name) + " Said: " + message.content)
 
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
@@ -43,7 +44,7 @@ async def on_message(message):
 
     if command.startswith('!stats') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
                 stats_obj = stats(players[argument])
@@ -55,19 +56,18 @@ async def on_message(message):
 
                 embed.set_thumbnail(url=stats_obj.get_thumbnail())
 
-                embed.set_footer(text="Cortesia de sie7e-BOT",
-                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
                 await message.channel.send(embed=embed)
 
             except KeyError:
-                await message.channel.send("Tiene el perfil privado esa caquita")
+                await message.channel.send(Constants.PRIVATE_PROFILE)
 
     if command.startswith('!help') or command.startswith('!commands'):
         await message.channel.send(show_help())
 
     if command.startswith('!refresh') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             refresh(players[argument])
             await message.channel.send("Ok")
@@ -85,23 +85,23 @@ async def on_message(message):
 
     if command.startswith('!wl') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
                 await message.channel.send(w_l(players[argument]))
             except KeyError:
-                await message.channel.send("Tiene el perfil privado esa caquita")
+                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!last') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
 
                 last_game = last(players[argument])
 
                 save_build_image(last_game.get_build())
-                file = discord.File("last_match_items.png", filename="image.png")
+                file = discord.File("last_match_items.png", filename="last.png")
 
                 embed = discord.Embed(
                     colour=discord.Color.green() if last_game.get_wl().startswith(
@@ -119,16 +119,16 @@ async def on_message(message):
                 embed.add_field(name="Curacion", value=last_game.get_curacion())
                 embed.set_footer(text=last_game.get_time_ago())
                 embed.set_thumbnail(url=last_game.get_hero_img())
-                embed.set_image(url="attachment://image.png")
+                embed.set_image(url="attachment://last.png")
 
                 await message.channel.send(embed=embed, file=file)
 
             except KeyError:
-                await message.channel.send("Tiene el perfil privado esa caquita")
+                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!avg') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
                 avg_obj = avg(players[argument])
@@ -145,16 +145,15 @@ async def on_message(message):
                 embed.add_field(name="Denegados", value=avg_obj.get_denegados())
                 embed.add_field(name="Daño", value=avg_obj.get_dano())
                 embed.add_field(name="Nivel", value=avg_obj.get_nivel())
-                embed.set_footer(text="Cortesia de sie7e-BOT",
-                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
                 await message.channel.send(embed=embed)
             except KeyError:
-                await message.channel.send("Tiene el perfil privado esa caquita")
+                await message.channel.send(Constants.PRIVATE_PROFILE)
 
     if command.startswith('!total') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED)
         else:
             try:
                 total_obj = total(players[argument])
@@ -170,12 +169,11 @@ async def on_message(message):
                 embed.add_field(name="Last Hits", value=total_obj.get_lh())
                 embed.add_field(name="Denegados", value=total_obj.get_denegados())
                 embed.add_field(name="Daño", value=total_obj.get_dano())
-                embed.set_footer(text="Cortesia de sie7e-BOT",
-                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
                 await message.channel.send(embed=embed)
             except KeyError:
-                await message.channel.send("Tiene el perfil privado esa caquita")
+                await message.channel.send(Constants.PRIVATE_PROFILE)
 
     if command.startswith('!wins'):
         string = wins_rank(players)
@@ -199,13 +197,11 @@ async def on_message(message):
 
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
                               description="Players que estan conectados en este momento")
-        embed.set_thumbnail(
-            url="https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png")
+        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
 
-        embed.set_author(name="Steam", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/"
-                                                "Steam_icon_logo.svg/1024px-Steam_icon_logo.svg.png")
-        embed.set_footer(text="Cortesia de sie7e-BOT",
-                         icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+        embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
 
         dota_players_string = "" if len(dota_players) > 0 else "Nadie\n\n"
@@ -228,13 +224,10 @@ async def on_message(message):
         await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
 
         vicios_hoy, vicios_semana = get_vicios(players)
-        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
-                              description="Ranking de partidas jugadas")
-        embed.set_thumbnail(
-            url="https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png")
+        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios", description="Ranking de partidas jugadas")
+        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
 
-        embed.set_footer(text="Cortesia de sie7e-BOT",
-                         icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
         vicios_hoy_str = ""
         vicios_semana_str = ""
@@ -251,7 +244,7 @@ async def on_message(message):
 
     if command.startswith('!record') and argument:
         if argument not in players:
-            await message.channel.send("Ni idea quien es ese. Tira !players para ver los que conozco")
+            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
                 records_obj = get_records(players[argument])
@@ -270,24 +263,20 @@ async def on_message(message):
                 embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
                 embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
 
-                embed.set_footer(text="Cortesia de sie7e-BOT",
-                                 icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
                 await message.channel.send(embed=embed)
             except KeyError:
-                await message.channel.send("Tiene el perfil privado esa caquita")
+                await message.channel.send(Constants.PRIVATE_PROFILE)
 
     if command.startswith('!lp') or command.startswith("!lg"):
         lista = get_last_played(players)
         embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
                               description="Lista de players que han terminado una partida recientemente")
-        embed.set_thumbnail(
-            url="https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png")
+        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
 
-        embed.set_author(name="Steam", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/"
-                                                "Steam_icon_logo.svg/1024px-Steam_icon_logo.svg.png")
-        embed.set_footer(text="Cortesia de sie7e-BOT",
-                         icon_url="https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png")
+        embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
         for p in lista:
             embed.add_field(name=p[0], value=p[2], inline=False)
