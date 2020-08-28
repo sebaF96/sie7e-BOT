@@ -39,6 +39,41 @@ async def on_message(message):
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
+    if command.startswith('!mute'):
+        author_roles = message.author.roles
+        author_roles = [r.name for r in author_roles]
+
+        if '@moderator' not in author_roles:
+            await message.channel.send('?')
+            return
+
+        voice_channel = client.get_channel(747932473958072361)
+        members = voice_channel.members
+
+        role = message.author.guild.get_role(748248561501601864)
+        for m in members:
+            await m.add_roles(role)
+
+        await message.channel.send('Ok')
+
+    if command.startswith('!unmute'):
+        author_roles = message.author.roles
+        author_roles = [r.name for r in author_roles]
+
+        if '@moderator' not in author_roles:
+            await message.channel.send('?')
+            return
+
+        voice_channel = client.get_channel(747932473958072361)
+        members = voice_channel.members
+
+        role = message.author.guild.get_role(748248561501601864)
+
+        for m in members:
+            await m.remove_roles(m, role)
+
+        await message.channel.send('Ok')
+
     if command.startswith('!hello'):
         await message.channel.send('Hello noob')
 
