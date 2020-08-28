@@ -47,14 +47,14 @@ async def on_message(message):
             await message.channel.send('?')
             return
 
-        voice_channel = client.get_channel(747932473958072361)
+        voice_channel = client.get_channel(Constants.AMONG_US_CHANNEL.value)
         members = voice_channel.members
 
-        role = message.author.guild.get_role(748248561501601864)
+        role = message.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
         for m in members:
             await m.add_roles(role)
 
-        await message.channel.send('Ok')
+        await message.channel.send('Ok :mute: :mute: :mute:')
 
     if command.startswith('!unmute'):
         author_roles = message.author.roles
@@ -64,15 +64,15 @@ async def on_message(message):
             await message.channel.send('?')
             return
 
-        voice_channel = client.get_channel(747932473958072361)
+        voice_channel = client.get_channel(Constants.AMONG_US_CHANNEL.value)
         members = voice_channel.members
 
-        role = message.author.guild.get_role(748248561501601864)
+        role = message.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
 
         for m in members:
-            await m.remove_roles(m, role)
+            await m.remove_roles(role)
 
-        await message.channel.send('Ok')
+        await message.channel.send('Ok :loud_sound: :loud_sound: :loud_sound:')
 
     if command.startswith('!hello'):
         await message.channel.send('Hello noob')
