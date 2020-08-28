@@ -10,3 +10,5 @@ class Constants(Enum):
                       "-Steam_icon_logo.svg.png "
     DOTA2_IMAGE_URL = "https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png"
     ADMIN_PRIVATE_CHANNEL = 730953382935920745
+    AMONG_US_CHANNEL = 747932473958072361
+    MUTED_ROLE_ID = 748248561501601864
