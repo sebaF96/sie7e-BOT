@@ -232,10 +232,11 @@ async def avg(ctx, player: to_lower):
 
 @bot.command()
 async def total(ctx, player: to_lower):
+    """Shows the all-time statistics of the given player"""
+
     if player not in players:
         await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         return
-
     try:
         total_obj = fetcher.total(players[player])
         embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
@@ -257,6 +258,68 @@ async def total(ctx, player: to_lower):
         await ctx.send(Constants.PRIVATE_PROFILE.value)
 
 
+@bot.command()
+async def wins(ctx):
+    """Shows a ranking of wins in the last 7 days"""
+
+    await ctx.channel.send(fetcher.wins_rank(players))
+
+
+@bot.command()
+async def on(ctx):
+    """Shows people online on Steam and playing Dota at the momment"""
+
+    dota_players, online_players = fetcher.get_on()
+
+    embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
+                          description="Players que estan conectados en este momento")
+
+    embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+    embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+    dota_players_string = str() if len(dota_players) > 0 else "Nadie\n\n"
+    online_players_string = str() if len(online_players) > 0 else "Nadie\n\n"
+
+    for player_nick in dota_players:
+        dota_players_string += ":green_circle:    " + player_nick + "\n\n"
+
+    for player_nick in online_players:
+        online_players_string += ":blue_circle:    " + player_nick + "\n\n"
+
+    embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
+    embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
+
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def vicio(ctx):
+    """Shows a weekly and daily ranking of games played"""
+
+    await ctx.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")
+    vicios_hoy, vicios_semana = fetcher.get_vicios(players)
+
+    embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios", description="Ranking de partidas jugadas")
+    embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+    vicios_hoy_str = str()
+    vicios_semana_str = str()
+
+    for p in vicios_hoy:
+        player_name, games_played = p[0], p[1]
+        vicios_hoy_str += f"- {player_name} ({games_played}) games\n\n"
+    for p in vicios_semana:
+        player_name, games_played = p[0], p[1]
+        vicios_semana_str += f"- {player_name} ({games_played}) games\n\n"
+
+    embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
+    embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
+
+    await ctx.send(embed=embed)
+
+
 @client.event
 async def on_message(message):
     if message.author == client.user or not message.content.startswith("!"):
@@ -268,73 +331,6 @@ async def on_message(message):
 
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
-
-
-
-    if command.startswith('!wins'):
-        string = fetcher.wins_rank(players)
-
-        await message.channel.send(string)
-
-    if command.startswith("!joke"):
-        await message.channel.purge(limit=1)
-        joke = fetcher.get_joke()
-        if joke["type"] == "single":
-            await message.channel.send(joke["joke"])
-        else:
-            await message.channel.send(joke["setup"])
-
-            await asyncio.sleep(10)
-
-            await message.channel.send(joke["delivery"])
-
-    if command.startswith("!on"):
-        dota_players, online_players = fetcher.get_on()
-
-        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
-                              description="Players que estan conectados en este momento")
-        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
-
-        embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
-
-        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-        dota_players_string = "" if len(dota_players) > 0 else "Nadie\n\n"
-        online_players_string = "" if len(online_players) > 0 else "Nadie\n\n"
-
-        for player_nick in dota_players:
-            dota_players_string += ":green_circle:    " + player_nick + "\n\n"
-
-        for player_nick in online_players:
-            online_players_string += ":blue_circle:    " + player_nick + "\n\n"
-
-        embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
-        embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
-
-        await message.channel.send(embed=embed)
-
-    if command.startswith("!vicio"):
-        await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
-
-        vicios_hoy, vicios_semana = fetcher.get_vicios(players)
-        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
-                              description="Ranking de partidas jugadas")
-        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
-
-        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-        vicios_hoy_str = ""
-        vicios_semana_str = ""
-
-        for p in vicios_hoy:
-            vicios_hoy_str += "- " + p[0] + " (" + str(p[1]) + " games)\n\n"
-        for p in vicios_semana:
-            vicios_semana_str += "- " + p[0] + " (" + str(p[1]) + " games)\n\n"
-
-        embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
-        embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
-
-        await message.channel.send(embed=embed)
 
     if command.startswith('!record') and argument:
         if argument not in players:
