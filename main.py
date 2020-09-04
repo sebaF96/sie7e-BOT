@@ -26,15 +26,23 @@ client = discord.Client()
 players = read_players()
 start_time = int(time.time())
 bot = commands.Bot(command_prefix='!')
+bot.remove_command('help')
+
+
+@bot.event
+async def on_ready():
+    print('Ready')
 
 
 @bot.command()
 async def hello(ctx):
+    """Just says hello"""
     await ctx.send(f"Hello {ctx.author.name}")
 
 
 @bot.command()
 async def mute(ctx):
+    """Mute all the members of the Among US channel"""
     if not ctx.guild:
         return
 
@@ -57,6 +65,7 @@ async def mute(ctx):
 
 @bot.command()
 async def unmute(ctx):
+    """Unmmute all the members of the Among US channel"""
     if not ctx.guild:
         return
 
@@ -80,6 +89,7 @@ async def unmute(ctx):
 
 @bot.command()
 async def stats(ctx, player=None):
+    """Shows last 5 games of that player"""
     if not player:
         return
 
@@ -108,6 +118,40 @@ async def stats(ctx, player=None):
             pass
 
 
+@bot.command(name='help')
+async def help_info(ctx):
+    await ctx.send(fetcher.show_help())
+
+
+@bot.command()
+async def refresh(ctx, player=None):
+    """Sends a POST request to refresh stats of the given player"""
+    if not player:
+        await ctx.send("Tenes q mandar el nombre del player")
+        return
+
+    player = player.lower()
+
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+    else:
+        fetcher.refresh(players[player])
+        await ctx.send("Ok")
+
+
+@bot.command(name='players')
+async def players_command(ctx):
+    string = ""
+    for key in players:
+        try:
+            name = fetcher.get_nick(players[key])
+            string += f"{key} **({name})**\n"
+        except KeyError or TypeError:
+            continue
+
+    await ctx.send(string)
+
+
 @client.event
 async def on_message(message):
 
@@ -121,48 +165,6 @@ async def on_message(message):
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
 
-    if command.startswith('!stats') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                stats_obj = stats(players[argument])
-                embed = discord.Embed(title=stats_obj.get_titulo(), description=stats_obj.get_descripcion(),
-                                      colour=discord.Color.light_grey())
-
-                for i in range(0, 5, 1):
-                    embed.add_field(name=stats_obj.get_game(i), value=stats_obj.get_delimiter(), inline=False)
-
-                embed.set_thumbnail(url=stats_obj.get_thumbnail())
-
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-                await message.channel.send(embed=embed)
-
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
-            except AttributeError:
-                pass
-
-    if command.startswith('!help') or command.startswith('!commands'):
-        await message.channel.send(fetcher.show_help())
-
-    if command.startswith('!refresh') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            fetcher.refresh(players[argument])
-            await message.channel.send("Ok")
-
-    if command.startswith('!players'):
-        string = ""
-        for key in players:
-            try:
-                name = fetcher.get_nick(players[key])
-                string += key + " **(" + str(name) + ")**\n"
-            except KeyError or TypeError:
-                continue
-
-        await message.channel.send(string)
 
     if command.startswith('!wl') and argument:
         if argument not in players:
@@ -377,5 +379,5 @@ async def on_message(message):
 
 
 
-
-bot.run(read_token())
+if __name__ == '__main__':
+    bot.run(read_token())
