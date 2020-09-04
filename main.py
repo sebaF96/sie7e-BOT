@@ -141,6 +141,7 @@ async def refresh(ctx, player=None):
 
 @bot.command(name='players')
 async def players_command(ctx):
+    """Show the list of players that the bot knows with their in-game nicks"""
     string = ""
     for key in players:
         try:
@@ -150,6 +151,21 @@ async def players_command(ctx):
             continue
 
     await ctx.send(string)
+
+
+@bot.command()
+async def wl(ctx, player=None):
+    """Shows the win-lose count in the last 20 games of the given player"""
+    if not player:
+        return
+
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+    else:
+        try:
+            await ctx.send(fetcher.w_l(players[player]))
+        except KeyError:
+            await player.send(Constants.PRIVATE_PROFILE.value)
 
 
 @client.event
