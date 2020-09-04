@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from fetcher import *
+import fetcher
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
@@ -78,6 +78,36 @@ async def unmute(ctx):
     await ctx.send('Ok :loud_sound: :loud_sound: :loud_sound:')
 
 
+@bot.command()
+async def stats(ctx, player=None):
+    if not player:
+        return
+
+    player = player.lower()
+
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+    else:
+        try:
+            stats_obj = fetcher.stats(players[player])
+            embed = discord.Embed(title=stats_obj.get_titulo(),
+                                  description=stats_obj.get_descripcion(),
+                                  colour=discord.Color.light_grey())
+
+            for i in range(0, 5, 1):
+                embed.add_field(name=stats_obj.get_game(i), value=stats_obj.get_delimiter(), inline=False)
+
+            embed.set_thumbnail(url=stats_obj.get_thumbnail())
+
+            embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+            await ctx.send(embed=embed)
+
+        except KeyError:
+            await ctx.send(Constants.PRIVATE_PROFILE.value)
+        except AttributeError:
+            pass
+
+
 @client.event
 async def on_message(message):
 
@@ -90,27 +120,6 @@ async def on_message(message):
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
-
-    if command.startswith('!unmute'):
-        author_roles = message.author.roles
-        author_roles = [r.name for r in author_roles]
-
-        if '@moderator' not in author_roles:
-            await message.channel.send('?')
-            return
-
-        voice_channel = client.get_channel(Constants.AMONG_US_CHANNEL.value)
-        members = voice_channel.members
-
-        role = message.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
-
-        for m in members:
-            await m.remove_roles(role)
-
-        await message.channel.send('Ok :loud_sound: :loud_sound: :loud_sound:')
-
-    if command.startswith('!hello'):
-        await message.channel.send('Hello noob')
 
     if command.startswith('!stats') and argument:
         if argument not in players:
@@ -135,20 +144,20 @@ async def on_message(message):
                 pass
 
     if command.startswith('!help') or command.startswith('!commands'):
-        await message.channel.send(show_help())
+        await message.channel.send(fetcher.show_help())
 
     if command.startswith('!refresh') and argument:
         if argument not in players:
             await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
-            refresh(players[argument])
+            fetcher.refresh(players[argument])
             await message.channel.send("Ok")
 
     if command.startswith('!players'):
         string = ""
         for key in players:
             try:
-                name = get_nick(players[key])
+                name = fetcher.get_nick(players[key])
                 string += key + " **(" + str(name) + ")**\n"
             except KeyError or TypeError:
                 continue
@@ -160,7 +169,7 @@ async def on_message(message):
             await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
-                await message.channel.send(w_l(players[argument]))
+                await message.channel.send(fetcher.w_l(players[argument]))
             except KeyError:
                 await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
@@ -170,7 +179,7 @@ async def on_message(message):
         else:
             try:
 
-                last_game = last(players[argument])
+                last_game = fetcher.last(players[argument])
 
                 save_build_image(last_game.get_build())
                 file = discord.File("last_match_items.png", filename="last.png")
@@ -203,7 +212,7 @@ async def on_message(message):
             await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
-                avg_obj = avg(players[argument])
+                avg_obj = fetcher.avg(players[argument])
                 embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
                                       description="Estadisticas de las ultimas 20 partidas")
                 embed.set_thumbnail(url=avg_obj.get_thumbnail())
@@ -228,7 +237,7 @@ async def on_message(message):
             await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
-                total_obj = total(players[argument])
+                total_obj = fetcher.total(players[argument])
                 embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
                                       description="Contador de todas las partidas jugadas")
                 embed.set_thumbnail(url=total_obj.get_thumbnail())
@@ -248,13 +257,13 @@ async def on_message(message):
                 await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!wins'):
-        string = wins_rank(players)
+        string = fetcher.wins_rank(players)
 
         await message.channel.send(string)
 
     if command.startswith("!joke"):
         await message.channel.purge(limit=1)
-        joke = get_joke()
+        joke = fetcher.get_joke()
         if joke["type"] == "single":
             await message.channel.send(joke["joke"])
         else:
@@ -265,7 +274,7 @@ async def on_message(message):
             await message.channel.send(joke["delivery"])
 
     if command.startswith("!on"):
-        dota_players, online_players = get_on()
+        dota_players, online_players = fetcher.get_on()
 
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
                               description="Players que estan conectados en este momento")
@@ -295,7 +304,7 @@ async def on_message(message):
     if command.startswith("!vicio"):
         await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
 
-        vicios_hoy, vicios_semana = get_vicios(players)
+        vicios_hoy, vicios_semana = fetcher.get_vicios(players)
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios", description="Ranking de partidas jugadas")
         embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
 
@@ -319,7 +328,7 @@ async def on_message(message):
             await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
-                records_obj = get_records(players[argument])
+                records_obj = fetcher.get_records(players[argument])
                 embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
                                       description="Records de todas las partidas jugadas")
                 embed.set_thumbnail(url=records_obj.get_thumbnail())
@@ -342,7 +351,7 @@ async def on_message(message):
                 await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!lp') or command.startswith("!lg"):
-        lista = get_last_played(players)
+        lista = fetcher.get_last_played(players)
         embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
                               description="Lista de players que han terminado una partida recientemente")
         embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
@@ -357,7 +366,7 @@ async def on_message(message):
 
     if command.startswith("!displaydailywinners"):
         await message.channel.purge(limit=1)
-        string = wins_rank(players, daily=True)
+        string = fetcher.wins_rank(players, daily=True)
 
         await message.channel.send(string)
 
@@ -368,5 +377,5 @@ async def on_message(message):
 
 
 
-if __name__ == '__main__':
-    bot.run(read_token())
+
+bot.run(read_token())
