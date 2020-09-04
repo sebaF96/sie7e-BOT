@@ -1,6 +1,6 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on,\
-    get_vicios, get_records, get_last_played
+from discord.ext import commands
+from fetcher import *
 from drawdota import save_build_image
 import asyncio
 from dotenv import load_dotenv
@@ -25,6 +25,57 @@ def read_players():
 client = discord.Client()
 players = read_players()
 start_time = int(time.time())
+bot = commands.Bot(command_prefix='!')
+
+
+@bot.command()
+async def hello(ctx):
+    await ctx.send(f"Hello {ctx.author.name}")
+
+
+@bot.command()
+async def mute(ctx):
+    if not ctx.guild:
+        return
+
+    author_roles = ctx.author.roles
+    author_roles = [r.name for r in author_roles]
+
+    if '@moderator' not in author_roles:
+        await ctx.send('?')
+        return
+
+    voice_channel = bot.get_channel(Constants.AMONG_US_CHANNEL.value)
+    members = voice_channel.members
+
+    role = ctx.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
+    for m in members:
+        await m.add_roles(role)
+
+    await ctx.send('Ok :mute: :mute: :mute:')
+
+
+@bot.command()
+async def unmute(ctx):
+    if not ctx.guild:
+        return
+
+    author_roles = ctx.author.roles
+    author_roles = [r.name for r in author_roles]
+
+    if '@moderator' not in author_roles:
+        await ctx.send('?')
+        return
+
+    voice_channel = bot.get_channel(Constants.AMONG_US_CHANNEL.value)
+    members = voice_channel.members
+
+    role = ctx.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
+
+    for m in members:
+        await m.remove_roles(role)
+
+    await ctx.send('Ok :loud_sound: :loud_sound: :loud_sound:')
 
 
 @client.event
@@ -39,22 +90,6 @@ async def on_message(message):
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
-    if command.startswith('!mute'):
-        author_roles = message.author.roles
-        author_roles = [r.name for r in author_roles]
-
-        if '@moderator' not in author_roles:
-            await message.channel.send('?')
-            return
-
-        voice_channel = client.get_channel(Constants.AMONG_US_CHANNEL.value)
-        members = voice_channel.members
-
-        role = message.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
-        for m in members:
-            await m.add_roles(role)
-
-        await message.channel.send('Ok :mute: :mute: :mute:')
 
     if command.startswith('!unmute'):
         author_roles = message.author.roles
@@ -333,5 +368,5 @@ async def on_message(message):
 
 
 
-
-client.run(read_token())
+if __name__ == '__main__':
+    bot.run(read_token())
