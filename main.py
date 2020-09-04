@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import fetcher
 from drawdota import save_build_image
-import asyncio
 from dotenv import load_dotenv
 import os
 import time
@@ -26,7 +25,6 @@ def to_lower(argument: str):
     return argument.lower()
 
 
-client = discord.Client()
 players = read_players()
 start_time = int(time.time())
 bot = commands.Bot(command_prefix='!')
@@ -309,10 +307,10 @@ async def vicio(ctx):
 
     for p in vicios_hoy:
         player_name, games_played = p[0], p[1]
-        vicios_hoy_str += f"- {player_name} ({games_played}) games\n\n"
+        vicios_hoy_str += f"- {player_name} ({games_played} games)\n\n"
     for p in vicios_semana:
         player_name, games_played = p[0], p[1]
-        vicios_semana_str += f"- {player_name} ({games_played}) games\n\n"
+        vicios_semana_str += f"- {player_name} ({games_played} games)\n\n"
 
     embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
     embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
@@ -320,69 +318,74 @@ async def vicio(ctx):
     await ctx.send(embed=embed)
 
 
-@client.event
-async def on_message(message):
-    if message.author == client.user or not message.content.startswith("!"):
+@bot.command()
+async def record(ctx, player: to_lower):
+    """Shows all-time records of the given player"""
+
+    if player not in players:
+        await player.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         return
 
-    if not message.guild and message.channel.recipient.name != 'Noah-':
-        await client.get_channel(Constants.ADMIN_PRIVATE_CHANNEL.value).send(
-            str(message.author.name) + " Said: " + message.content)
+    try:
+        records_obj = fetcher.get_records(players[player])
+        embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
+                              description="Records de todas las partidas jugadas")
 
-    command = message.content.split()[0].lower()
-    argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
+        embed.set_thumbnail(url=records_obj.get_thumbnail())
+        embed.add_field(name="Kills", value=records_obj.get_kills(), inline=False)
+        embed.add_field(name="OPM", value=records_obj.get_opm(), inline=False)
+        embed.add_field(name="EPM", value=records_obj.get_epm(), inline=False)
+        embed.add_field(name="Last Hits", value=records_obj.get_last_hits(), inline=False)
+        embed.add_field(name="Denegados", value=records_obj.get_denies(), inline=False)
+        embed.add_field(name="Duracion", value=records_obj.get_duration(), inline=False)
+        embed.add_field(name="Assists", value=records_obj.get_assists(), inline=False)
+        embed.add_field(name="Daño", value=records_obj.get_hero_damage(), inline=False)
+        embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
+        embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
 
-    if command.startswith('!record') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                records_obj = fetcher.get_records(players[argument])
-                embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
-                                      description="Records de todas las partidas jugadas")
-                embed.set_thumbnail(url=records_obj.get_thumbnail())
-
-                embed.add_field(name="Kills", value=records_obj.get_kills(), inline=False)
-                embed.add_field(name="OPM", value=records_obj.get_opm(), inline=False)
-                embed.add_field(name="EPM", value=records_obj.get_epm(), inline=False)
-                embed.add_field(name="Last Hits", value=records_obj.get_last_hits(), inline=False)
-                embed.add_field(name="Denegados", value=records_obj.get_denies(), inline=False)
-                embed.add_field(name="Duracion", value=records_obj.get_duration(), inline=False)
-                embed.add_field(name="Assists", value=records_obj.get_assists(), inline=False)
-                embed.add_field(name="Daño", value=records_obj.get_hero_damage(), inline=False)
-                embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
-                embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
-
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-                await message.channel.send(embed=embed)
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
-
-    if command.startswith('!lp') or command.startswith("!lg"):
-        lista = fetcher.get_last_played(players)
-        embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
-                              description="Lista de players que han terminado una partida recientemente")
-        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
-
-        embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
         embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-        for p in lista:
-            embed.add_field(name=p[0], value=p[2], inline=False)
+        await ctx.send(embed=embed)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
 
-        await message.channel.send(embed=embed)
 
-    if command.startswith("!displaydailywinners"):
-        await message.channel.purge(limit=1)
-        string = fetcher.wins_rank(players, daily=True)
+@bot.command()
+async def lp(ctx):
+    """Shows 5 most recent games of any known player"""
 
-        await message.channel.send(string)
+    lp_list = fetcher.get_last_played(players)
+    embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
+                          description="Lista de players que han terminado una partida recientemente")
 
-    if command.startswith("!uptime"):
-        string = "I have been running for "
-        string += str(datetime.timedelta(seconds=int(time.time() - start_time)))
-        await message.channel.send(string)
+    embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+    embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+    for p in lp_list:
+        embed.add_field(name=p[0], value=p[2], inline=False)
+
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def displaydailywinners(ctx):
+    """Daily ranking of winners. Just can be called from another bot or WebHook"""
+
+    if not ctx.author.bot:
+        await ctx.send('?')
+        return
+
+    await ctx.purge(limit=1)
+    await ctx.send(fetcher.wins_rank(players, daily=True))
+
+
+@bot.command()
+async def uptime(ctx):
+    """Formated time that bot has been running. Useful to check if Heroku is restarting it daily"""
+
+    formated_uptime = str(datetime.timedelta(seconds=int(time.time() - start_time)))
+    await ctx.send(f"I have been running for {formated_uptime}")
 
 
 if __name__ == '__main__':
