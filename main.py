@@ -201,6 +201,62 @@ async def last(ctx, player: to_lower):
         await ctx.send(Constants.PRIVATE_PROFILE.value)
 
 
+@bot.command()
+async def avg(ctx, player: to_lower):
+    """Shows avg stats of the given player in his last 20 matches"""
+
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
+    try:
+        avg_obj = fetcher.avg(players[player])
+        embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
+                              description="Estadisticas de las ultimas 20 partidas")
+
+        embed.set_thumbnail(url=avg_obj.get_thumbnail())
+        embed.add_field(name="Kills", value=avg_obj.get_kills())
+        embed.add_field(name="Muertes", value=avg_obj.get_muertes())
+        embed.add_field(name="Assists", value=avg_obj.get_assists())
+        embed.add_field(name="OPM", value=avg_obj.get_opm())
+        embed.add_field(name="EPM", value=avg_obj.get_epm())
+        embed.add_field(name="Last Hits", value=avg_obj.get_lh())
+        embed.add_field(name="Denegados", value=avg_obj.get_denegados())
+        embed.add_field(name="Daño", value=avg_obj.get_dano())
+        embed.add_field(name="Nivel", value=avg_obj.get_nivel())
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+        await ctx.send(embed=embed)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
+
+
+@bot.command()
+async def total(ctx, player: to_lower):
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
+
+    try:
+        total_obj = fetcher.total(players[player])
+        embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
+                              description="Contador de todas las partidas jugadas")
+
+        embed.set_thumbnail(url=total_obj.get_thumbnail())
+        embed.add_field(name="Partidas", value=total_obj.get_total_games())
+        embed.add_field(name="Winrate", value=total_obj.get_winrate())
+        embed.add_field(name="Kills", value=total_obj.get_kills())
+        embed.add_field(name="Muertes", value=total_obj.get_muertes())
+        embed.add_field(name="Assists", value=total_obj.get_assists())
+        embed.add_field(name="Last Hits", value=total_obj.get_lh())
+        embed.add_field(name="Denegados", value=total_obj.get_denegados())
+        embed.add_field(name="Daño", value=total_obj.get_dano())
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+        await ctx.send(embed=embed)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
+
+
 @client.event
 async def on_message(message):
     if message.author == client.user or not message.content.startswith("!"):
@@ -213,88 +269,7 @@ async def on_message(message):
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
 
-    if command.startswith('!last') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
 
-                last_game = fetcher.last(players[argument])
-
-                save_build_image(last_game.get_build())
-                file = discord.File("last_match_items.png", filename="last.png")
-
-                embed = discord.Embed(
-                    colour=discord.Color.green() if last_game.get_wl().startswith(
-                        ":green") else discord.Color.dark_red(),
-                    title=last_game.get_title(),
-                    description=last_game.get_wl())
-                embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
-                embed.add_field(name="KDA", value=last_game.get_kda())
-                embed.add_field(name="Duracion", value=last_game.get_duracion())
-                embed.add_field(name="Last Hits", value=last_game.get_lh())
-                embed.add_field(name="OPM", value=last_game.get_opm())
-                embed.add_field(name="EPM", value=last_game.get_epm())
-                embed.add_field(name="Daño", value=last_game.get_dano())
-                embed.add_field(name="Daño a torres", value=last_game.get_dano_t())
-                embed.add_field(name="Curacion", value=last_game.get_curacion())
-                embed.set_footer(text=last_game.get_time_ago())
-                embed.set_thumbnail(url=last_game.get_hero_img())
-                embed.set_image(url="attachment://last.png")
-
-                await message.channel.send(embed=embed, file=file)
-
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
-
-    if command.startswith('!avg') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                avg_obj = fetcher.avg(players[argument])
-                embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
-                                      description="Estadisticas de las ultimas 20 partidas")
-                embed.set_thumbnail(url=avg_obj.get_thumbnail())
-
-                embed.add_field(name="Kills", value=avg_obj.get_kills())
-                embed.add_field(name="Muertes", value=avg_obj.get_muertes())
-                embed.add_field(name="Assists", value=avg_obj.get_assists())
-                embed.add_field(name="OPM", value=avg_obj.get_opm())
-                embed.add_field(name="EPM", value=avg_obj.get_epm())
-                embed.add_field(name="Last Hits", value=avg_obj.get_lh())
-                embed.add_field(name="Denegados", value=avg_obj.get_denegados())
-                embed.add_field(name="Daño", value=avg_obj.get_dano())
-                embed.add_field(name="Nivel", value=avg_obj.get_nivel())
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-                await message.channel.send(embed=embed)
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
-
-    if command.startswith('!total') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                total_obj = fetcher.total(players[argument])
-                embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
-                                      description="Contador de todas las partidas jugadas")
-                embed.set_thumbnail(url=total_obj.get_thumbnail())
-
-                embed.add_field(name="Partidas", value=total_obj.get_total_games())
-                embed.add_field(name="Winrate", value=total_obj.get_winrate())
-                embed.add_field(name="Kills", value=total_obj.get_kills())
-                embed.add_field(name="Muertes", value=total_obj.get_muertes())
-                embed.add_field(name="Assists", value=total_obj.get_assists())
-                embed.add_field(name="Last Hits", value=total_obj.get_lh())
-                embed.add_field(name="Denegados", value=total_obj.get_denegados())
-                embed.add_field(name="Daño", value=total_obj.get_dano())
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-                await message.channel.send(embed=embed)
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!wins'):
         string = fetcher.wins_rank(players)
