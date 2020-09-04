@@ -22,6 +22,10 @@ def read_players():
         return json.loads(file.read())
 
 
+def to_lower(argument: str):
+    return argument.lower()
+
+
 client = discord.Client()
 players = read_players()
 start_time = int(time.time())
@@ -32,6 +36,12 @@ bot.remove_command('help')
 @bot.event
 async def on_ready():
     print('Ready')
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send("Tenes que mandar el player con este comando")
 
 
 @bot.command()
@@ -88,12 +98,8 @@ async def unmute(ctx):
 
 
 @bot.command()
-async def stats(ctx, player=None):
+async def stats(ctx, player: to_lower):
     """Shows last 5 games of that player"""
-    if not player:
-        return
-
-    player = player.lower()
 
     if player not in players:
         await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
@@ -124,13 +130,8 @@ async def help_info(ctx):
 
 
 @bot.command()
-async def refresh(ctx, player=None):
+async def refresh(ctx, player: to_lower):
     """Sends a POST request to refresh stats of the given player"""
-    if not player:
-        await ctx.send("Tenes q mandar el nombre del player")
-        return
-
-    player = player.lower()
 
     if player not in players:
         await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
@@ -142,7 +143,7 @@ async def refresh(ctx, player=None):
 @bot.command(name='players')
 async def players_command(ctx):
     """Show the list of players that the bot knows with their in-game nicks"""
-    string = ""
+    string = str()
     for key in players:
         try:
             name = fetcher.get_nick(players[key])
@@ -154,10 +155,8 @@ async def players_command(ctx):
 
 
 @bot.command()
-async def wl(ctx, player=None):
+async def wl(ctx, player: to_lower):
     """Shows the win-lose count in the last 20 games of the given player"""
-    if not player:
-        return
 
     if player not in players:
         await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
@@ -168,28 +167,51 @@ async def wl(ctx, player=None):
             await player.send(Constants.PRIVATE_PROFILE.value)
 
 
+@bot.command()
+async def last(ctx, player: to_lower):
+    """Shows information about given player's last Dota match"""
+
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
+
+    try:
+        last_game = fetcher.last(players[player])
+        save_build_image(last_game.get_build())
+        file = discord.File("last_match_items.png", filename="last.png")
+        embed_colour = discord.Color.green() if last_game.get_wl().startswith(":green") else discord.Color.dark_red()
+
+        embed = discord.Embed(colour=embed_colour, title=last_game.get_title(), description=last_game.get_wl())
+        embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
+        embed.add_field(name="KDA", value=last_game.get_kda())
+        embed.add_field(name="Duracion", value=last_game.get_duracion())
+        embed.add_field(name="Last Hits", value=last_game.get_lh())
+        embed.add_field(name="OPM", value=last_game.get_opm())
+        embed.add_field(name="EPM", value=last_game.get_epm())
+        embed.add_field(name="Daño", value=last_game.get_dano())
+        embed.add_field(name="Daño a torres", value=last_game.get_dano_t())
+        embed.add_field(name="Curacion", value=last_game.get_curacion())
+        embed.set_footer(text=last_game.get_time_ago())
+        embed.set_thumbnail(url=last_game.get_hero_img())
+        embed.set_image(url="attachment://last.png")
+
+        await ctx.send(embed=embed, file=file)
+
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
+
+
 @client.event
 async def on_message(message):
-
     if message.author == client.user or not message.content.startswith("!"):
         return
 
     if not message.guild and message.channel.recipient.name != 'Noah-':
-        await client.get_channel(Constants.ADMIN_PRIVATE_CHANNEL.value).send(str(message.author.name) + " Said: " + message.content)
+        await client.get_channel(Constants.ADMIN_PRIVATE_CHANNEL.value).send(
+            str(message.author.name) + " Said: " + message.content)
 
     command = message.content.split()[0].lower()
     argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
-
-
-
-    if command.startswith('!wl') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                await message.channel.send(fetcher.w_l(players[argument]))
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
 
     if command.startswith('!last') and argument:
         if argument not in players:
@@ -302,17 +324,14 @@ async def on_message(message):
 
         embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-
         dota_players_string = "" if len(dota_players) > 0 else "Nadie\n\n"
         online_players_string = "" if len(online_players) > 0 else "Nadie\n\n"
-
 
         for player_nick in dota_players:
             dota_players_string += ":green_circle:    " + player_nick + "\n\n"
 
         for player_nick in online_players:
             online_players_string += ":blue_circle:    " + player_nick + "\n\n"
-
 
         embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
         embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
@@ -323,7 +342,8 @@ async def on_message(message):
         await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
 
         vicios_hoy, vicios_semana = fetcher.get_vicios(players)
-        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios", description="Ranking de partidas jugadas")
+        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
+                              description="Ranking de partidas jugadas")
         embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
 
         embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
@@ -392,7 +412,6 @@ async def on_message(message):
         string = "I have been running for "
         string += str(datetime.timedelta(seconds=int(time.time() - start_time)))
         await message.channel.send(string)
-
 
 
 if __name__ == '__main__':
