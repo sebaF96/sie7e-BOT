@@ -33,6 +33,12 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
+    game = discord.Activity(
+        name="PokerStars",
+        type=discord.ActivityType.playing,
+        start=datetime.datetime.utcnow())
+
+    await bot.change_presence(status=discord.Status.online, activity=game)
     print('Ready')
 
 
