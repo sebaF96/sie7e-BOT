@@ -1,8 +1,7 @@
 import discord
-from fetcher import stats, show_help, refresh, get_nick, w_l, last, avg, total, wins_rank, get_joke, get_on,\
-    get_vicios, get_records, get_last_played
+from discord.ext import commands
+import fetcher
 from drawdota import save_build_image
-import asyncio
 from dotenv import load_dotenv
 import os
 import time
@@ -22,316 +21,378 @@ def read_players():
         return json.loads(file.read())
 
 
-client = discord.Client()
+def to_lower(argument: str):
+    return argument.lower()
+
+
 players = read_players()
 start_time = int(time.time())
+bot = commands.Bot(command_prefix='!')
+bot.remove_command('help')
 
 
-@client.event
-async def on_message(message):
+@bot.event
+async def on_ready():
+    game = discord.Activity(
+        name="PokerStars",
+        type=discord.ActivityType.playing,
+        start=datetime.datetime.utcnow())
 
-    if message.author == client.user or not message.content.startswith("!"):
+    await bot.change_presence(status=discord.Status.online, activity=game)
+    print('Ready')
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send("Tenes que mandar el player con este comando")
+
+
+@bot.command()
+async def hello(ctx):
+    """Just says hello"""
+    await ctx.send(f"Hello {ctx.author.name}")
+
+
+@bot.command()
+async def mute(ctx):
+    """Mute all the members of the Among US channel"""
+    if not ctx.guild:
         return
 
-    if not message.guild and message.channel.recipient.name != 'Noah-':
-        await client.get_channel(Constants.ADMIN_PRIVATE_CHANNEL.value).send(str(message.author.name) + " Said: " + message.content)
+    author_roles = ctx.author.roles
+    author_roles = [r.name for r in author_roles]
 
-    command = message.content.split()[0].lower()
-    argument = message.content.split()[1].lower() if len(message.content.split()) > 1 else None
+    if '@moderator' not in author_roles:
+        await ctx.send('?')
+        return
 
-    if command.startswith('!mute'):
-        author_roles = message.author.roles
-        author_roles = [r.name for r in author_roles]
+    voice_channel = bot.get_channel(Constants.AMONG_US_CHANNEL.value)
+    members = voice_channel.members
 
-        if '@moderator' not in author_roles:
-            await message.channel.send('?')
-            return
+    role = ctx.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
+    for m in members:
+        await m.add_roles(role)
 
-        voice_channel = client.get_channel(Constants.AMONG_US_CHANNEL.value)
-        members = voice_channel.members
+    await ctx.send('Ok :mute: :mute: :mute:')
 
-        role = message.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
-        for m in members:
-            await m.add_roles(role)
 
-        await message.channel.send('Ok :mute: :mute: :mute:')
+@bot.command()
+async def unmute(ctx):
+    """Unmmute all the members of the Among US channel"""
+    if not ctx.guild:
+        return
 
-    if command.startswith('!unmute'):
-        author_roles = message.author.roles
-        author_roles = [r.name for r in author_roles]
+    author_roles = ctx.author.roles
+    author_roles = [r.name for r in author_roles]
 
-        if '@moderator' not in author_roles:
-            await message.channel.send('?')
-            return
+    if '@moderator' not in author_roles:
+        await ctx.send('?')
+        return
 
-        voice_channel = client.get_channel(Constants.AMONG_US_CHANNEL.value)
-        members = voice_channel.members
+    voice_channel = bot.get_channel(Constants.AMONG_US_CHANNEL.value)
+    members = voice_channel.members
 
-        role = message.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
+    role = ctx.author.guild.get_role(Constants.MUTED_ROLE_ID.value)
 
-        for m in members:
-            await m.remove_roles(role)
+    for m in members:
+        await m.remove_roles(role)
 
-        await message.channel.send('Ok :loud_sound: :loud_sound: :loud_sound:')
+    await ctx.send('Ok :loud_sound: :loud_sound: :loud_sound:')
 
-    if command.startswith('!hello'):
-        await message.channel.send('Hello noob')
 
-    if command.startswith('!stats') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                stats_obj = stats(players[argument])
-                embed = discord.Embed(title=stats_obj.get_titulo(), description=stats_obj.get_descripcion(),
-                                      colour=discord.Color.light_grey())
+@bot.command()
+async def stats(ctx, player: to_lower):
+    """Shows last 5 games of that player"""
 
-                for i in range(0, 5, 1):
-                    embed.add_field(name=stats_obj.get_game(i), value=stats_obj.get_delimiter(), inline=False)
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+    else:
+        try:
+            stats_obj = fetcher.stats(players[player])
+            embed = discord.Embed(title=stats_obj.get_titulo(),
+                                  description=stats_obj.get_descripcion(),
+                                  colour=discord.Color.light_grey())
 
-                embed.set_thumbnail(url=stats_obj.get_thumbnail())
+            for i in range(0, 5, 1):
+                embed.add_field(name=stats_obj.get_game(i), value=stats_obj.get_delimiter(), inline=False)
 
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-                await message.channel.send(embed=embed)
+            embed.set_thumbnail(url=stats_obj.get_thumbnail())
 
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
-            except AttributeError:
-                pass
+            embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+            await ctx.send(embed=embed)
 
-    if command.startswith('!help') or command.startswith('!commands'):
-        await message.channel.send(show_help())
+        except KeyError:
+            await ctx.send(Constants.PRIVATE_PROFILE.value)
+        except AttributeError:
+            pass
 
-    if command.startswith('!refresh') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            refresh(players[argument])
-            await message.channel.send("Ok")
 
-    if command.startswith('!players'):
-        string = ""
-        for key in players:
-            try:
-                name = get_nick(players[key])
-                string += key + " **(" + str(name) + ")**\n"
-            except KeyError or TypeError:
-                continue
+@bot.command(name='help')
+async def help_info(ctx):
+    await ctx.send(fetcher.show_help())
 
-        await message.channel.send(string)
 
-    if command.startswith('!wl') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                await message.channel.send(w_l(players[argument]))
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
+@bot.command()
+async def refresh(ctx, player: to_lower):
+    """Sends a POST request to refresh stats of the given player"""
 
-    if command.startswith('!last') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+    else:
+        fetcher.refresh(players[player])
+        await ctx.send("Ok")
 
-                last_game = last(players[argument])
 
-                save_build_image(last_game.get_build())
-                file = discord.File("last_match_items.png", filename="last.png")
+@bot.command(name='players')
+async def players_command(ctx):
+    """Show the list of players that the bot knows with their in-game nicks"""
+    string = str()
+    for key in players:
+        try:
+            name = fetcher.get_nick(players[key])
+            string += f"{key} **({name})**\n"
+        except KeyError or TypeError:
+            continue
 
-                embed = discord.Embed(
-                    colour=discord.Color.green() if last_game.get_wl().startswith(
-                        ":green") else discord.Color.dark_red(),
-                    title=last_game.get_title(),
-                    description=last_game.get_wl())
-                embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
-                embed.add_field(name="KDA", value=last_game.get_kda())
-                embed.add_field(name="Duracion", value=last_game.get_duracion())
-                embed.add_field(name="Last Hits", value=last_game.get_lh())
-                embed.add_field(name="OPM", value=last_game.get_opm())
-                embed.add_field(name="EPM", value=last_game.get_epm())
-                embed.add_field(name="Daño", value=last_game.get_dano())
-                embed.add_field(name="Daño a torres", value=last_game.get_dano_t())
-                embed.add_field(name="Curacion", value=last_game.get_curacion())
-                embed.set_footer(text=last_game.get_time_ago())
-                embed.set_thumbnail(url=last_game.get_hero_img())
-                embed.set_image(url="attachment://last.png")
+    await ctx.send(string)
 
-                await message.channel.send(embed=embed, file=file)
 
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
+@bot.command()
+async def wl(ctx, player: to_lower):
+    """Shows the win-lose count in the last 20 games of the given player"""
 
-    if command.startswith('!avg') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                avg_obj = avg(players[argument])
-                embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
-                                      description="Estadisticas de las ultimas 20 partidas")
-                embed.set_thumbnail(url=avg_obj.get_thumbnail())
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+    else:
+        try:
+            await ctx.send(fetcher.w_l(players[player]))
+        except KeyError:
+            await player.send(Constants.PRIVATE_PROFILE.value)
 
-                embed.add_field(name="Kills", value=avg_obj.get_kills())
-                embed.add_field(name="Muertes", value=avg_obj.get_muertes())
-                embed.add_field(name="Assists", value=avg_obj.get_assists())
-                embed.add_field(name="OPM", value=avg_obj.get_opm())
-                embed.add_field(name="EPM", value=avg_obj.get_epm())
-                embed.add_field(name="Last Hits", value=avg_obj.get_lh())
-                embed.add_field(name="Denegados", value=avg_obj.get_denegados())
-                embed.add_field(name="Daño", value=avg_obj.get_dano())
-                embed.add_field(name="Nivel", value=avg_obj.get_nivel())
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-                await message.channel.send(embed=embed)
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
+@bot.command()
+async def last(ctx, player: to_lower):
+    """Shows information about given player's last Dota match"""
 
-    if command.startswith('!total') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                total_obj = total(players[argument])
-                embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
-                                      description="Contador de todas las partidas jugadas")
-                embed.set_thumbnail(url=total_obj.get_thumbnail())
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
 
-                embed.add_field(name="Partidas", value=total_obj.get_total_games())
-                embed.add_field(name="Winrate", value=total_obj.get_winrate())
-                embed.add_field(name="Kills", value=total_obj.get_kills())
-                embed.add_field(name="Muertes", value=total_obj.get_muertes())
-                embed.add_field(name="Assists", value=total_obj.get_assists())
-                embed.add_field(name="Last Hits", value=total_obj.get_lh())
-                embed.add_field(name="Denegados", value=total_obj.get_denegados())
-                embed.add_field(name="Daño", value=total_obj.get_dano())
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+    try:
+        last_game = fetcher.last(players[player])
+        save_build_image(last_game.get_build())
+        file = discord.File("last_match_items.png", filename="last.png")
+        embed_colour = discord.Color.green() if last_game.get_wl().startswith(":green") else discord.Color.dark_red()
 
-                await message.channel.send(embed=embed)
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
+        embed = discord.Embed(colour=embed_colour, title=last_game.get_title(), description=last_game.get_wl())
+        embed.set_author(name=last_game.get_hero_name(), icon_url=last_game.get_hero_icon())
+        embed.add_field(name="KDA", value=last_game.get_kda())
+        embed.add_field(name="Duracion", value=last_game.get_duracion())
+        embed.add_field(name="Last Hits", value=last_game.get_lh())
+        embed.add_field(name="OPM", value=last_game.get_opm())
+        embed.add_field(name="EPM", value=last_game.get_epm())
+        embed.add_field(name="Daño", value=last_game.get_dano())
+        embed.add_field(name="Daño a torres", value=last_game.get_dano_t())
+        embed.add_field(name="Curacion", value=last_game.get_curacion())
+        embed.set_footer(text=last_game.get_time_ago())
+        embed.set_thumbnail(url=last_game.get_hero_img())
+        embed.set_image(url="attachment://last.png")
 
-    if command.startswith('!wins'):
-        string = wins_rank(players)
+        await ctx.send(embed=embed, file=file)
 
-        await message.channel.send(string)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
 
-    if command.startswith("!joke"):
-        await message.channel.purge(limit=1)
-        joke = get_joke()
-        if joke["type"] == "single":
-            await message.channel.send(joke["joke"])
-        else:
-            await message.channel.send(joke["setup"])
 
-            await asyncio.sleep(10)
+@bot.command()
+async def avg(ctx, player: to_lower):
+    """Shows avg stats of the given player in his last 20 matches"""
 
-            await message.channel.send(joke["delivery"])
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
+    try:
+        avg_obj = fetcher.avg(players[player])
+        embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
+                              description="Estadisticas de las ultimas 20 partidas")
 
-    if command.startswith("!on"):
-        dota_players, online_players = get_on()
+        embed.set_thumbnail(url=avg_obj.get_thumbnail())
+        embed.add_field(name="Kills", value=avg_obj.get_kills())
+        embed.add_field(name="Muertes", value=avg_obj.get_muertes())
+        embed.add_field(name="Assists", value=avg_obj.get_assists())
+        embed.add_field(name="OPM", value=avg_obj.get_opm())
+        embed.add_field(name="EPM", value=avg_obj.get_epm())
+        embed.add_field(name="Last Hits", value=avg_obj.get_lh())
+        embed.add_field(name="Denegados", value=avg_obj.get_denegados())
+        embed.add_field(name="Daño", value=avg_obj.get_dano())
+        embed.add_field(name="Nivel", value=avg_obj.get_nivel())
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
-                              description="Players que estan conectados en este momento")
-        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+        await ctx.send(embed=embed)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
 
-        embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+
+@bot.command()
+async def total(ctx, player: to_lower):
+    """Shows the all-time statistics of the given player"""
+
+    if player not in players:
+        await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
+    try:
+        total_obj = fetcher.total(players[player])
+        embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
+                              description="Contador de todas las partidas jugadas")
+
+        embed.set_thumbnail(url=total_obj.get_thumbnail())
+        embed.add_field(name="Partidas", value=total_obj.get_total_games())
+        embed.add_field(name="Winrate", value=total_obj.get_winrate())
+        embed.add_field(name="Kills", value=total_obj.get_kills())
+        embed.add_field(name="Muertes", value=total_obj.get_muertes())
+        embed.add_field(name="Assists", value=total_obj.get_assists())
+        embed.add_field(name="Last Hits", value=total_obj.get_lh())
+        embed.add_field(name="Denegados", value=total_obj.get_denegados())
+        embed.add_field(name="Daño", value=total_obj.get_dano())
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+        await ctx.send(embed=embed)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
+
+
+@bot.command()
+async def wins(ctx):
+    """Shows a ranking of wins in the last 7 days"""
+
+    await ctx.channel.send(fetcher.wins_rank(players))
+
+
+@bot.command()
+async def on(ctx):
+    """Shows people online on Steam and playing Dota at the momment"""
+
+    dota_players, online_players = fetcher.get_on()
+
+    embed = discord.Embed(colour=discord.Color.dark_blue(), title="Jugadores Online",
+                          description="Players que estan conectados en este momento")
+
+    embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+    embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+    dota_players_string = str() if len(dota_players) > 0 else "Nadie\n\n"
+    online_players_string = str() if len(online_players) > 0 else "Nadie\n\n"
+
+    for player_nick in dota_players:
+        dota_players_string += ":green_circle:    " + player_nick + "\n\n"
+
+    for player_nick in online_players:
+        online_players_string += ":blue_circle:    " + player_nick + "\n\n"
+
+    embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
+    embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
+
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def vicio(ctx):
+    """Shows a weekly and daily ranking of games played"""
+
+    await ctx.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")
+    vicios_hoy, vicios_semana = fetcher.get_vicios(players)
+
+    embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios", description="Ranking de partidas jugadas")
+    embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+    vicios_hoy_str = str()
+    vicios_semana_str = str()
+
+    for p in vicios_hoy:
+        player_name, games_played = p[0], p[1]
+        vicios_hoy_str += f"- {player_name} ({games_played} games)\n\n"
+    for p in vicios_semana:
+        player_name, games_played = p[0], p[1]
+        vicios_semana_str += f"- {player_name} ({games_played} games)\n\n"
+
+    embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
+    embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
+
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def record(ctx, player: to_lower):
+    """Shows all-time records of the given player"""
+
+    if player not in players:
+        await player.send(Constants.PLAYER_NOT_RECOGNIZED.value)
+        return
+
+    try:
+        records_obj = fetcher.get_records(players[player])
+        embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
+                              description="Records de todas las partidas jugadas")
+
+        embed.set_thumbnail(url=records_obj.get_thumbnail())
+        embed.add_field(name="Kills", value=records_obj.get_kills(), inline=False)
+        embed.add_field(name="OPM", value=records_obj.get_opm(), inline=False)
+        embed.add_field(name="EPM", value=records_obj.get_epm(), inline=False)
+        embed.add_field(name="Last Hits", value=records_obj.get_last_hits(), inline=False)
+        embed.add_field(name="Denegados", value=records_obj.get_denies(), inline=False)
+        embed.add_field(name="Duracion", value=records_obj.get_duration(), inline=False)
+        embed.add_field(name="Assists", value=records_obj.get_assists(), inline=False)
+        embed.add_field(name="Daño", value=records_obj.get_hero_damage(), inline=False)
+        embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
+        embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
 
         embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-
-        dota_players_string = "" if len(dota_players) > 0 else "Nadie\n\n"
-        online_players_string = "" if len(online_players) > 0 else "Nadie\n\n"
-
-
-        for player_nick in dota_players:
-            dota_players_string += ":green_circle:    " + player_nick + "\n\n"
-
-        for player_nick in online_players:
-            online_players_string += ":blue_circle:    " + player_nick + "\n\n"
+        await ctx.send(embed=embed)
+    except KeyError:
+        await ctx.send(Constants.PRIVATE_PROFILE.value)
 
 
-        embed.add_field(name="Jugando Dota 2", value=dota_players_string, inline=False)
-        embed.add_field(name="Conectado en Steam", value=online_players_string, inline=False)
+@bot.command()
+async def lp(ctx):
+    """Shows 5 most recent games of any known player"""
 
-        await message.channel.send(embed=embed)
+    lp_list = fetcher.get_last_played(players)
+    embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
+                          description="Lista de players que han terminado una partida recientemente")
 
-    if command.startswith("!vicio"):
-        await(await message.channel.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")).delete(delay=1)
+    embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
+    embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-        vicios_hoy, vicios_semana = get_vicios(players)
-        embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios", description="Ranking de partidas jugadas")
-        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
+    for p in lp_list:
+        embed.add_field(name=p[0], value=p[2], inline=False)
 
-        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-        vicios_hoy_str = ""
-        vicios_semana_str = ""
-
-        for p in vicios_hoy:
-            vicios_hoy_str += "- " + p[0] + " (" + str(p[1]) + " games)\n\n"
-        for p in vicios_semana:
-            vicios_semana_str += "- " + p[0] + " (" + str(p[1]) + " games)\n\n"
-
-        embed.add_field(name="Top vicios HOY", value=vicios_hoy_str, inline=False)
-        embed.add_field(name="Top vicios SEMANA", value=vicios_semana_str, inline=False)
-
-        await message.channel.send(embed=embed)
-
-    if command.startswith('!record') and argument:
-        if argument not in players:
-            await message.channel.send(Constants.PLAYER_NOT_RECOGNIZED.value)
-        else:
-            try:
-                records_obj = get_records(players[argument])
-                embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
-                                      description="Records de todas las partidas jugadas")
-                embed.set_thumbnail(url=records_obj.get_thumbnail())
-
-                embed.add_field(name="Kills", value=records_obj.get_kills(), inline=False)
-                embed.add_field(name="OPM", value=records_obj.get_opm(), inline=False)
-                embed.add_field(name="EPM", value=records_obj.get_epm(), inline=False)
-                embed.add_field(name="Last Hits", value=records_obj.get_last_hits(), inline=False)
-                embed.add_field(name="Denegados", value=records_obj.get_denies(), inline=False)
-                embed.add_field(name="Duracion", value=records_obj.get_duration(), inline=False)
-                embed.add_field(name="Assists", value=records_obj.get_assists(), inline=False)
-                embed.add_field(name="Daño", value=records_obj.get_hero_damage(), inline=False)
-                embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
-                embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
-
-                embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-                await message.channel.send(embed=embed)
-            except KeyError:
-                await message.channel.send(Constants.PRIVATE_PROFILE.value)
-
-    if command.startswith('!lp') or command.startswith("!lg"):
-        lista = get_last_played(players)
-        embed = discord.Embed(colour=discord.Color.blue(), title="Ultima partida jugada",
-                              description="Lista de players que han terminado una partida recientemente")
-        embed.set_thumbnail(url=Constants.DOTA2_IMAGE_URL.value)
-
-        embed.set_author(name="Steam", icon_url=Constants.STEAM_IMAGE_URL.value)
-        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
-
-        for p in lista:
-            embed.add_field(name=p[0], value=p[2], inline=False)
-
-        await message.channel.send(embed=embed)
-
-    if command.startswith("!displaydailywinners"):
-        await message.channel.purge(limit=1)
-        string = wins_rank(players, daily=True)
-
-        await message.channel.send(string)
-
-    if command.startswith("!uptime"):
-        string = "I have been running for "
-        string += str(datetime.timedelta(seconds=int(time.time() - start_time)))
-        await message.channel.send(string)
+    await ctx.send(embed=embed)
 
 
+@bot.command()
+async def displaydailywinners(ctx):
+    """Daily ranking of winners. Just can be called from another bot or WebHook"""
+
+    if not ctx.author.bot:
+        await ctx.send('?')
+        return
+
+    await ctx.purge(limit=1)
+    await ctx.send(fetcher.wins_rank(players, daily=True))
 
 
-client.run(read_token())
+@bot.command()
+async def uptime(ctx):
+    """Formated time that bot has been running. Useful to check if Heroku is restarting it daily"""
+
+    formated_uptime = str(datetime.timedelta(seconds=int(time.time() - start_time)))
+    await ctx.send(f"I have been running for {formated_uptime}")
+
+
+if __name__ == '__main__':
+    bot.run(read_token())
