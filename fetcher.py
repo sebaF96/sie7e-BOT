@@ -1,17 +1,14 @@
 import json
 import requests
 import time
-from objects import Last, Total, Avg, Stats, Records
-from dotenv import load_dotenv
-import os
-from multiprocessing import Queue
 import threading
-
-load_dotenv()
+from multiprocessing import Queue
+from objects import Last, Total, Avg, Stats, Records
+from constants import Fetcher as FConstants
 
 
 def get_hero_dict() -> dict:
-    response = requests.get('https://api.opendota.com/api/heroes')
+    response = requests.get(FConstants.API_HEROES_URL.value)
     full_hero_dict = json.loads(response.text)
     min_hero_dict = {}
 
@@ -23,9 +20,9 @@ def get_hero_dict() -> dict:
 
 def get_hero_picture(icon=False) -> dict:
 
-    response = requests.get("https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json")
+    response = requests.get(FConstants.DOTACONSTANTS_HEROES_URL.value)
     full_hero_dict = json.loads(response.text)
-    base_url = "https://steamcdn-a.akamaihd.net"
+    base_url = FConstants.HEROPICTURE_BASE_URL.value
 
     min_hero_dict = {}
 
@@ -51,16 +48,14 @@ HERO_ICON = get_hero_picture(icon=True)
 
 
 def get_player_steamid(player_id: int):
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id))
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id))
     steam_id = json.loads(response.text)["profile"]["steamid"]
 
     return steam_id
 
 
 def get_nick(player_id: int):
-    steam_api_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
-        "STEAM_APIKEY") + "&steamids="
-
+    steam_api_url = FConstants.STEAM_API_URL.value
     steam_id = get_player_steamid(player_id)
     response = requests.get(steam_api_url + str(steam_id))
     steam_profile = json.loads(response.text)
@@ -69,8 +64,7 @@ def get_nick(player_id: int):
 
 
 def get_avatar_url(player_id: int):
-    steam_api_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
-        "STEAM_APIKEY") + "&steamids="
+    steam_api_url = FConstants.STEAM_API_URL.value
 
     steam_id = get_player_steamid(player_id)
     response = requests.get(steam_api_url + str(steam_id))
@@ -89,7 +83,7 @@ def format_duration(duration: int) -> str:
     if seconds < 10:
         seconds = '0' + str(seconds)
 
-    return str(minutes) + ':' + str(seconds)
+    return f"{minutes}:{seconds}"
 
 
 def format_time_ago(timestamp):
@@ -101,21 +95,21 @@ def format_time_ago(timestamp):
 
     if time_ago >= 86400:
         days = round(time_ago / 86400)
-        return "hace " + str(days) + "d aprox."
+        return f"hace {days}d aprox."
 
     if time_ago >= 3600:
         hours = round(time_ago / 3600)
-        return "hace " + str(hours) + "h aprox."
+        return f"hace {hours}h aprox."
 
     if time_ago >= 60:
         minutes = int(time_ago / 60)
-        return "hace " + str(minutes) + " min aprox."
+        return f"hace {minutes} min aprox."
 
-    return "hace " + str(time_ago) + " seg aprox."
+    return f"hace {time_ago} seg aprox."
 
 
 def stats(player_id: int) -> Stats:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
     try:
         recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
@@ -141,31 +135,12 @@ def stats(player_id: int) -> Stats:
         print(recent_matches)
 
 
-def show_help() -> str:
-    string = "** COMANDOS **\n"
-    string += "**`!help`** --> muestra este mensaje\n"
-    string += "**`!players`** --> muestra los players de los q podes ver la data\n"
-    string += "**`!stats <player>`** --> muestra las ultimas 5 partidas de ese player\n"
-    string += "**`!wl <player>`** --> muestra el W - L de las ultimas 20 partidas de ese player\n"
-    string += "**`!refresh <player>`** --> actualiza las estadisticas de ese player\n"
-    string += "**`!last <player>`** ---> muestra la ultima partida de ese player\n"
-    string += "**`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)\n"
-    string += "**`!total <player>`** ---> muestra los totales de ese player\n"
-    string += "**`!records <player>`** ---> muestra los records de ese player en distintos games\n"
-    string += "**`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 7 dias\n"
-    string += "**`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento\n"
-    string += "**`!vicio`** ---> ranking de partidas jugadas hoy y en la semana\n"
-    string += "**`!lp`** ---> muestra los players que han jugado mas recientemente\n"
-
-    return string
-
-
 def refresh(player_id: int):
-    r = requests.post(' https://api.opendota.com/api/players/' + str(player_id) + '/refresh')
+    requests.post(FConstants.API_PLAYERS_URL.value + str(player_id) + '/refresh')
 
 
 def w_l(player_id: int) -> str:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?limit=20')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl?limit=20')
     wl = json.loads(response.text)
     wins = wl["win"]
     defeats = wl["lose"]
@@ -176,13 +151,13 @@ def w_l(player_id: int) -> str:
 
 
 def get_winrate(player_id: int) -> str:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl')
     wl = json.loads(response.text)
     return str(round((wl["win"] / (wl["lose"] + wl["win"])) * 100, 2)).replace('.', ',') + "%"
 
 
 def get_build(match_id: int, player_slot: int) -> list:
-    r = requests.get("https://api.opendota.com/api/matches/" + str(match_id))
+    r = requests.get(FConstants.API_MATCHES_URL.value + str(match_id))
     full_match = json.loads(r.text)
     build = []
 
@@ -199,7 +174,7 @@ def get_build(match_id: int, player_slot: int) -> list:
 
 
 def last(player_id: int) -> Last:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
     recent_matches = [m for m in recent_matches if m["game_mode"] == 22]    # 22 is ranked
     match = recent_matches[0]
@@ -229,7 +204,7 @@ def last(player_id: int) -> Last:
 
 
 def avg(player_id: int) -> Avg:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals?limit=20')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/totals?limit=20')
     totals = json.loads(response.text)
 
     avg_obj = Avg(titulo="Promedios de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
@@ -247,7 +222,7 @@ def avg(player_id: int) -> Avg:
 
 
 def total(player_id: int) -> Total:
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/totals')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/totals')
     totals = json.loads(response.text)
 
     total_obj = Total(titulo="Totales de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
@@ -264,7 +239,7 @@ def total(player_id: int) -> Total:
 
 
 def fetch_wins(player_id, queue, date):
-    r = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?date=' + date)
+    r = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl?date=' + date)
     wins = json.loads(r.text)["win"]
 
     try:
@@ -311,17 +286,9 @@ def wins_rank(players: dict, daily=False) -> str:
     return string
 
 
-def get_joke() -> dict:
-    r = requests.get("https://sv443.net/jokeapi/v2/joke/Miscellaneous,Dark")
-    joke = json.loads(r.text)
-
-    return joke
-
-
 def get_playerssummary_url():
     with open("cogs/players.json", 'r') as fd:
-        base_url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv(
-            "STEAM_APIKEY") + "&steamids="
+        base_url = FConstants.STEAM_API_URL.value
         my_players_dict = json.loads(fd.read())
 
         for idx, player_name in enumerate(my_players_dict):
@@ -334,11 +301,8 @@ def get_playerssummary_url():
         return base_url
 
 
-base_url = get_playerssummary_url()
-
-
 def get_on() -> (list, list):
-    r = requests.get(base_url)
+    r = requests.get(get_playerssummary_url())
     actual_players_dict = json.loads(r.text)["response"]
 
     dota_players_nick = []
@@ -357,13 +321,13 @@ def get_on() -> (list, list):
 
 
 def get_individual_vicio(player_id, queue_semana, queue_hoy):
-    r = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?date=7')
+    r = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl?date=7')
     games_semana = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
 
     if games_semana <= 3:
         return
 
-    r = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/wl?date=1')
+    r = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl?date=1')
     games_hoy = json.loads(r.text)["win"] + json.loads(r.text)["lose"]
 
     try:
@@ -405,10 +369,7 @@ def get_vicios(players):
 def get_records(player_id):
     record = Records(titulo="Records de " + get_nick(player_id), thumbnail=get_avatar_url(player_id))
 
-    url = "https://api.opendota.com/api/players/" + str(player_id) + \
-          "/matches?project=xp_per_min&project=gold_per_min&project=tower_damage&project=hero_damage" \
-          "&project=last_hits&project=start_time&project=kills&project=hero_id&project=denies&project" \
-          "=assists&project=deaths&project=hero_healing"
+    url = FConstants.API_PLAYERS_URL.value + str(player_id) + FConstants.RECORDS_URL_TAIL.value
 
     games_list = json.loads(requests.get(url).text)
 
@@ -447,27 +408,20 @@ def get_records(player_id):
 
 def get_player_last_time(player_id, queue):
 
-    response = requests.get('https://api.opendota.com/api/players/' + str(player_id) + '/recentMatches')
+    response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    try:
-        match = recent_matches[0]
-        radiant = is_radiant(match['player_slot'])
 
-        player_nick = ":green_circle:   " if radiant == match["radiant_win"] else ":red_circle:   "
-        player_nick += get_nick(player_id)
-        player_timestamp = match["start_time"] + match["duration"]
-        player_time_ago = format_time_ago(player_timestamp)
+    match = recent_matches[0]
+    radiant = is_radiant(match['player_slot'])
 
-        player_tuple = (player_nick, player_timestamp, player_time_ago)
+    player_nick = ":green_circle:   " if radiant == match["radiant_win"] else ":red_circle:   "
+    player_nick += get_nick(player_id)
+    player_timestamp = match["start_time"] + match["duration"]
+    player_time_ago = format_time_ago(player_timestamp)
 
-        queue.put(player_tuple)
+    player_tuple = (player_nick, player_timestamp, player_time_ago)
 
-    except KeyError:
-        print("Too many requests!")
-        print("Response:")
-        print(recent_matches)
-    except BrokenPipeError:
-        print("BrokenPipeError en hilo secundario de ejecucion")
+    queue.put(player_tuple)
 
 
 def get_last_played(players) -> list:
@@ -483,13 +437,10 @@ def get_last_played(players) -> list:
     for thread in threads_list:
         thread.join()
 
-    try:
-        while not queue.empty():
-            players_timestamps.append(queue.get())
-    except BrokenPipeError:
-        print("BrokenPipeError en hilo principal de ejecucion")
+
+    while not queue.empty():
+        players_timestamps.append(queue.get())
 
     players_timestamps.sort(key=lambda p: p[1], reverse=True)
-
 
     return players_timestamps[:5]

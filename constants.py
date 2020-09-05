@@ -1,4 +1,5 @@
 from enum import Enum
+from config import STEAM_APIKEY
 
 
 class Constants(Enum):
@@ -27,3 +28,20 @@ class Constants(Enum):
     **`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento
     **`!vicio`** ---> ranking de partidas jugadas hoy y en la semana
     **`!lp`** ---> muestra los players que han jugado mas recientemente """
+
+
+class Fetcher(Enum):
+    # OpenDota API
+    API_HEROES_URL = "https://api.opendota.com/api/heroes"
+    API_PLAYERS_URL = "https://api.opendota.com/api/players/"
+    API_MATCHES_URL = "https://api.opendota.com/api/matches/"
+    RECORDS_URL_TAIL = "/matches?project=xp_per_min&project=gold_per_min&project=tower_damage&project=hero_damage" \
+                       "&project=last_hits&project=start_time&project=kills&project=hero_id&project=denies&project" \
+                       "=assists&project=deaths&project=hero_healing "
+
+    # DotaConstants RAW data
+    DOTACONSTANTS_HEROES_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json"
+
+    # Steam
+    HEROPICTURE_BASE_URL = "https://steamcdn-a.akamaihd.net"
+    STEAM_API_URL = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + STEAM_APIKEY + "&steamids="
