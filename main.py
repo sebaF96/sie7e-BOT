@@ -1,8 +1,8 @@
 import discord
-import fetcher
 import os
 import time
 import datetime
+from constants import Constants
 from discord.ext import commands
 from dotenv import load_dotenv
 from cogs.dota import Dota2
@@ -41,7 +41,7 @@ async def hello(ctx):
 
 @bot.command(name='help')
 async def help_info(ctx):
-    await ctx.send(fetcher.show_help())
+    await ctx.send(Constants.HELP_MESSAGE.value)
 
 
 if __name__ == '__main__':
