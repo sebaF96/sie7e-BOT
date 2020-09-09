@@ -21,13 +21,12 @@ class AmongUS(commands.Cog):
         for m in members:
             await m.edit(mute=True)
 
-        await ctx.send('Ok :mute: :mute: :mute:')
-
+        await ctx.send(':mute:')
 
     @commands.has_role('@moderator')
     @commands.command()
     async def unmute(self, ctx):
-        """Unmute all the members of the Among US channel"""
+        """Unmute all the members of the command author's current voice channel"""
         if not ctx.guild:
             return
 
@@ -37,9 +36,17 @@ class AmongUS(commands.Cog):
         for m in members:
             await m.edit(mute=False)
 
-        await ctx.send('Ok :loud_sound: :loud_sound: :loud_sound:')
+        await ctx.send(':loud_sound:')
 
     @commands.command()
-    async def spam(self, ctx):
-        """Coming soon"""
-        ...
+    async def code(self, ctx, argument: str = None):
+        """Sends the code with emojis if is a valid Among Us code"""
+        argument = argument.lower()
+        if ctx.guild:
+            await ctx.message.delete()
+
+        if argument is None or len(argument) != 4 or not argument.isalpha():
+            return
+
+        letters = [f':regional_indicator_{letter}:' for letter in argument]
+        await ctx.send(f'{letters[0]} {letters[1]} {letters[2]} {letters[3]}')
