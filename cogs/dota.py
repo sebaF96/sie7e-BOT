@@ -208,7 +208,7 @@ class Dota2(commands.Cog):
     async def vicio(self, ctx):
         """Shows a weekly and daily ranking of games played"""
 
-        await ctx.send("Contando partidas de cada vicio... :hourglass_flowing_sand:")
+        await ctx.send("Contando partidas de cada vicio... :hourglass_flowing_sand:", delete_after=3)
         vicios_hoy, vicios_semana = fetcher.get_vicios(self.__players)
 
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
