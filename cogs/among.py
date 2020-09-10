@@ -21,7 +21,8 @@ class AmongUS(commands.Cog):
         for m in members:
             await m.edit(mute=True)
 
-        await ctx.send(':mute:')
+        await ctx.message.delete(delay=10)
+        await ctx.send(':mute:', delete_after=15)
 
     @commands.has_role('@moderator')
     @commands.command()
@@ -36,14 +37,15 @@ class AmongUS(commands.Cog):
         for m in members:
             await m.edit(mute=False)
 
-        await ctx.send(':loud_sound:')
+        await ctx.message.delete(delay=10)
+        await ctx.send(':loud_sound:', delete_after=15)
 
     @commands.command()
     async def code(self, ctx, argument: str = None):
         """Sends the code with emojis if is a valid Among Us code"""
         argument = argument.lower()
         if ctx.guild:
-            await ctx.message.delete()
+            await ctx.message.delete(delay=0.5)
 
         if argument is None or len(argument) != 4 or not argument.isalpha():
             return
