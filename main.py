@@ -8,7 +8,6 @@ from cogs.dota import Dota2
 from cogs.among import AmongUS
 from config import BOT_TOKEN
 
-
 STEAM_APIKEY = os.getenv('STEAM_APIKEY')
 start_time = int(time.time())
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"))
@@ -43,6 +42,13 @@ async def help_info(ctx):
 async def uptime(ctx):
     formatted_uptime = datetime.timedelta(seconds=int(time.time() - start_time))
     await ctx.send(f"I have been running for {formatted_uptime}")
+
+
+@commands.is_owner()
+@bot.command()
+async def say(ctx, *, msg):
+    await ctx.message.delete(delay=0.1)
+    await ctx.send(f"{msg}")
 
 
 if __name__ == '__main__':

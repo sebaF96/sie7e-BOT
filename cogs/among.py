@@ -45,7 +45,7 @@ class AmongUS(commands.Cog):
         """Sends the code with emojis if is a valid Among Us code"""
         argument = argument.lower()
         if ctx.guild:
-            await ctx.message.delete(delay=0.5)
+            await ctx.message.delete(delay=0.1)
 
         if argument is None or len(argument) != 4 or not argument.isalpha():
             return
