@@ -1,13 +1,12 @@
 import discord
-import fetcher
-import drawdota
+from cogs.dota import fetcher, drawdota
 from discord.ext import commands
 from constants import Constants
 
 
 def read_players():
     import json
-    with open("cogs/players.json", "r") as file:
+    with open("cogs/dota/players.json", "r") as file:
         return json.loads(file.read())
 
 
@@ -93,7 +92,7 @@ class Dota2(commands.Cog):
         try:
             last_game = fetcher.last(self.__players[player])
             drawdota.save_build_image(last_game.get_build())
-            file = discord.File("last_match_items.png", filename="last.png")
+            file = discord.File("cogs/dota/last_match_items.png", filename="last.png")
             embed_colour = discord.Color.green() if last_game.get_wl().startswith(
                 ":green") else discord.Color.dark_red()
 
