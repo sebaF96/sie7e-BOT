@@ -3,7 +3,7 @@ import requests
 import time
 import threading
 from multiprocessing import Queue
-from objects import Last, Total, Avg, Stats, Records
+from cogs.dota.dota_models import Last, Total, Avg, Stats, Records
 from constants import Fetcher as FConstants
 
 
@@ -287,7 +287,7 @@ def wins_rank(players: dict, daily=False) -> str:
 
 
 def get_playerssummary_url():
-    with open("cogs/players.json", 'r') as fd:
+    with open("cogs/dota/players.json", 'r') as fd:
         base_url = FConstants.STEAM_API_URL.value
         my_players_dict = json.loads(fd.read())
 

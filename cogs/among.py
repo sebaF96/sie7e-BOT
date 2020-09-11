@@ -1,5 +1,4 @@
 from discord.ext import commands
-from constants import Constants
 
 
 class AmongUS(commands.Cog):

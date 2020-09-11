@@ -1,5 +1,5 @@
 from enum import Enum
-from config import STEAM_APIKEY
+import os
 
 
 class Constants(Enum):
@@ -41,4 +41,4 @@ class Fetcher(Enum):
 
     # Steam
     HEROPICTURE_BASE_URL = "https://steamcdn-a.akamaihd.net"
-    STEAM_API_URL = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + STEAM_APIKEY + "&steamids="
+    STEAM_API_URL = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + os.getenv('STEAM_APIKEY') + "&steamids="

@@ -51,5 +51,5 @@ def save_build_image(build):
         x += item_size[0]
 
     result.thumbnail((result.size[0] * 0.6, result.size[1] * 0.6), Image.ANTIALIAS)
-    result.save("last_match_items.png")
+    result.save("cogs/dota/last_match_items.png")
     return result
