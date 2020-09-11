@@ -6,9 +6,14 @@ from cogs.among import AmongUS
 from cogs.events import Events
 from cogs.misc import Misc
 
-
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"))
 bot.remove_command('help')
+
+
+@bot.after_invoke
+async def after_any_command(ctx):
+    where = ctx.guild if ctx.guild else 'DM channel'
+    print(f'{ctx.author} used command [{ctx.command}] in {where}')
 
 
 if __name__ == '__main__':
