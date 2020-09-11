@@ -111,28 +111,23 @@ def format_time_ago(timestamp):
 def stats(player_id: int) -> Stats:
     response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    try:
-        recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
-        games = []
 
-        for i in range(0, 5, 1):
-            match = recent_matches[i]
-            radiant = is_radiant(match["player_slot"])
-            string = ":green_circle:   Gano" if radiant == match["radiant_win"] else ":red_circle:   Perdio"
-            string += " con "
-            string += HERO_DICT[match["hero_id"]] + " y salio "
-            string += str(match["kills"]) + '/' + str(match["deaths"]) + '/' + str(match["assists"])
+    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
+    games = []
 
-            games.append(string)
+    for i in range(0, 5, 1):
+        match = recent_matches[i]
+        radiant = is_radiant(match["player_slot"])
+        result = ":green_circle:   Gano" if radiant == match["radiant_win"] else ":red_circle:   Perdio"
+        string = f"{result} con {HERO_DICT[match['hero_id']]} y salio {match['kills']}/{match['deaths']}/{match['assists']}"
 
-        stats_obj = Stats(titulo="Ultimos 5 games de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
-                          game0=games[0], game1=games[1], game2=games[2], game3=games[3], game4=games[4])
+        games.append(string)
 
-        return stats_obj
+    stats_obj = Stats(titulo="Ultimos 5 games de " + get_nick(player_id), thumbnail=get_avatar_url(player_id),
+                      game0=games[0], game1=games[1], game2=games[2], game3=games[3], game4=games[4])
 
-    except TypeError or KeyError:
-        print("Too many requests in function stats!\nResponse:")
-        print(recent_matches)
+    return stats_obj
+
 
 
 def refresh(player_id: int):
@@ -367,29 +362,29 @@ def get_vicios(players):
 
 
 def get_records(player_id):
-    record = Records(titulo="Records de " + get_nick(player_id), thumbnail=get_avatar_url(player_id))
+    record = Records(titulo=f"Records de {get_nick(player_id)}", thumbnail=get_avatar_url(player_id))
 
     url = FConstants.API_PLAYERS_URL.value + str(player_id) + FConstants.RECORDS_URL_TAIL.value
 
     games_list = json.loads(requests.get(url).text)
 
     kills_game = sorted(games_list, key=lambda x: x["kills"], reverse=True)[0]
-    record.set_kills(str(kills_game["kills"]) + " (" + HERO_DICT[kills_game["hero_id"]] + ")")
+    record.set_kills(f"{kills_game['kills']} ({HERO_DICT[kills_game['hero_id']]})")
 
     opm_game = sorted(games_list, key=lambda x: x["gold_per_min"], reverse=True)[0]
-    record.set_opm(str(opm_game["gold_per_min"]) + " (" + HERO_DICT[opm_game["hero_id"]] + ")")
+    record.set_opm(f"{opm_game['gold_per_min']} ({HERO_DICT[opm_game['hero_id']]})")
 
     epm_game = sorted(games_list, key=lambda x: x["xp_per_min"], reverse=True)[0]
-    record.set_epm(str(epm_game["xp_per_min"]) + " (" + HERO_DICT[epm_game["hero_id"]] + ")")
+    record.set_epm(f"{epm_game['xp_per_min']} ({HERO_DICT[epm_game['hero_id']]})")
 
     duration_game = sorted(games_list, key=lambda x: x["duration"], reverse=True)[0]
-    record.set_duration(format_duration(duration_game["duration"]) + " (" + HERO_DICT[duration_game["hero_id"]] + ")")
+    record.set_duration(f"{format_duration(duration_game['duration'])} ({HERO_DICT[duration_game['hero_id']]})")
 
     assists_game = sorted(games_list, key=lambda x: x["assists"], reverse=True)[0]
-    record.set_assists(str(assists_game["assists"]) + " (" + HERO_DICT[assists_game["hero_id"]] + ")")
+    record.set_assists(f"{assists_game['assists']} ({HERO_DICT[assists_game['hero_id']]})")
 
     lh_game = sorted(games_list, key=lambda x: x["last_hits"], reverse=True)[0]
-    record.set_last_hits(str(lh_game["last_hits"]) + " (" + HERO_DICT[lh_game["hero_id"]] + ")")
+    record.set_last_hits(f"{lh_game['last_hits']} ({HERO_DICT[lh_game['hero_id']]})")
 
     damage_game = sorted([g for g in games_list if g["hero_damage"] is not None], key=lambda x: x["hero_damage"], reverse=True)[0]
     record.set_hero_damage(str("{:,}".format(damage_game["hero_damage"]).replace(',', '.')) + " (" + HERO_DICT[damage_game["hero_id"]] + ")")
@@ -401,7 +396,7 @@ def get_records(player_id):
     record.set_hero_healing(str("{:,}".format(heal_game["hero_healing"]).replace(',', '.')) + " (" + HERO_DICT[heal_game["hero_id"]] + ")")
 
     denies_game = sorted(games_list, key=lambda x: x["denies"], reverse=True)[0]
-    record.set_denies(str(denies_game["denies"]) + " (" + HERO_DICT[denies_game["hero_id"]] + ")")
+    record.set_denies(f"{denies_game['denies']} ({HERO_DICT[denies_game['hero_id']]})")
 
     return record
 

@@ -286,5 +286,5 @@ class Dota2(commands.Cog):
             await ctx.send('?')
             return
 
-        await ctx.purge(limit=1)
+        await ctx.message.delete(delay=0.1)
         await ctx.send(fetcher.wins_rank(self.__players, daily=True))
