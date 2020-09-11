@@ -11,7 +11,7 @@ from config import BOT_TOKEN
 
 STEAM_APIKEY = os.getenv('STEAM_APIKEY')
 start_time = int(time.time())
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"))
 bot.remove_command('help')
 
 
