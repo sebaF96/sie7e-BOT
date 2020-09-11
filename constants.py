@@ -34,7 +34,7 @@ class Fetcher(Enum):
     API_MATCHES_URL = "https://api.opendota.com/api/matches/"
     RECORDS_URL_TAIL = "/matches?project=xp_per_min&project=gold_per_min&project=tower_damage&project=hero_damage" \
                        "&project=last_hits&project=start_time&project=kills&project=hero_id&project=denies&project" \
-                       "=assists&project=deaths&project=hero_healing "
+                       "=assists&project=deaths&project=hero_healing"
 
     # DotaConstants RAW data
     DOTACONSTANTS_HEROES_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json"
