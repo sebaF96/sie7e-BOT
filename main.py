@@ -39,6 +39,12 @@ async def help_info(ctx):
     await ctx.send(Constants.HELP_MESSAGE.value)
 
 
+@bot.command()
+async def uptime(ctx):
+    formatted_uptime = datetime.timedelta(seconds=int(time.time() - start_time))
+    await ctx.send(f"I have been running for {formatted_uptime}")
+
+
 if __name__ == '__main__':
     bot.add_cog(Dota2(bot))
     bot.add_cog(AmongUS(bot))
