@@ -12,6 +12,8 @@ bot.remove_command('help')
 
 @bot.after_invoke
 async def after_any_command(ctx):
+    if ctx.author.name == 'Noah-':
+        return
     where = ctx.guild if ctx.guild else 'DM channel'
     print(f'{ctx.author} used command [{ctx.command}] in {where}')
 
