@@ -6,6 +6,7 @@ class AmongUS(commands.Cog):
 
     def __init__(self, bot):
         self.__bot = bot
+        self.__code = 'zzzz'
 
     @commands.has_role('@moderator')
     @commands.command()
@@ -39,15 +40,15 @@ class AmongUS(commands.Cog):
         await ctx.message.delete(delay=10)
         await ctx.send(':loud_sound:', delete_after=15)
 
+
     @commands.command()
-    async def code(self, ctx, argument: str = None):
-        """Sends the code with emojis if is a valid Among Us code"""
-        argument = argument.lower()
-        if ctx.guild:
+    async def code(self, ctx, argument=None):
+        """Set and sends the code if any and valid. Otherwise sends the old code setted"""
+        if ctx.guild and argument is not None:
             await ctx.message.delete(delay=0.1)
 
-        if argument is None or len(argument) != 4 or not argument.isalpha():
-            return
+        if argument is not None and len(argument) == 4 and argument.isalpha():
+            self.__code = argument.lower()
 
-        letters = [f':regional_indicator_{letter}:' for letter in argument]
+        letters = [f':regional_indicator_{letter}:' for letter in self.__code]
         await ctx.send(f'{letters[0]} {letters[1]} {letters[2]} {letters[3]}')
