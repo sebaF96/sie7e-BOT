@@ -1,57 +1,20 @@
-import discord
 import os
 import time
-import datetime
-from constants import Constants
 from discord.ext import commands
 from cogs.dota.dota import Dota2
 from cogs.among import AmongUS
+from cogs.events import Events
+from cogs.misc import Misc
 
 
-start_time = int(time.time())
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"))
 bot.remove_command('help')
 
 
-@bot.event
-async def on_ready():
-    game = discord.Activity(name="PokerStars", type=discord.ActivityType.playing, start=datetime.datetime.utcnow())
-    await bot.change_presence(status=discord.Status.online, activity=game)
-    print('Ready')
-
-
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send("Tenes que mandar el player con este comando")
-
-
-@bot.command()
-async def hello(ctx):
-    """Just says hello"""
-    await ctx.send(f"Hello {ctx.author.name}")
-
-
-@bot.command(name='help')
-async def help_info(ctx):
-    await ctx.send(Constants.HELP_MESSAGE.value)
-
-
-@bot.command()
-async def uptime(ctx):
-    formatted_uptime = datetime.timedelta(seconds=int(time.time() - start_time))
-    await ctx.send(f"I have been running for {formatted_uptime}")
-
-
-@commands.is_owner()
-@bot.command()
-async def say(ctx, *, msg):
-    await ctx.message.delete(delay=0.1)
-    await ctx.send(f"{msg}")
-
-
 if __name__ == '__main__':
+    bot.add_cog(Events(bot))
     bot.add_cog(Dota2(bot))
     bot.add_cog(AmongUS(bot))
+    bot.add_cog(Misc(bot, start_time=int(time.time())))
 
     bot.run(os.getenv('BOT_TOKEN'))
