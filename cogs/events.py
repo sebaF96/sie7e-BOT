@@ -18,3 +18,5 @@ class Events(commands.Cog):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument):
             await ctx.send("Tenes que mandar el player con este comando")
+        else:
+            print(f'{error} [command {ctx.command}]')
