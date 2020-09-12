@@ -37,5 +37,4 @@ class Misc(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=['purge', 'clear'])
     async def _purge(self, ctx, limit: int = 20):
-        await ctx.command.delete(delay=0.1)
-        await ctx.channel.purge(limit=limit)
+        await ctx.channel.purge(limit=limit + 1)
