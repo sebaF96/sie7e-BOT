@@ -1,8 +1,7 @@
 import json
 import requests
 import time
-import threading
-from multiprocessing import Queue
+from multiprocessing import Queue, Process
 from cogs.dota.dota_models import Last, Total, Avg, Stats, Records
 from constants import Fetcher as FConstants
 
@@ -247,17 +246,17 @@ def fetch_wins(player_id, queue, date):
 
 def wins_rank(players: dict, daily=False) -> str:
     date = "7" if not daily else "1"
-    threads_list = []
+    processes_list = []
     rank_list = []
     queue = Queue()
 
     for player in players:
-        thread = threading.Thread(target=fetch_wins, args=(players[player], queue, date))
-        thread.start()
-        threads_list.append(thread)
+        process = Process(target=fetch_wins, args=(players[player], queue, date))
+        process.start()
+        processes_list.append(process)
 
-    for thread in threads_list:
-        thread.join()
+    for p in processes_list:
+        p.join()
 
     while not queue.empty():
         rank_list.append(queue.get())
@@ -334,17 +333,17 @@ def get_individual_vicio(player_id, queue_semana, queue_hoy):
 
 
 def get_vicios(players):
-    vicios_hoy, vicios_semana, threads_list = [], [], []
+    vicios_hoy, vicios_semana, processes_list = [], [], []
     queue_semana, queue_hoy = Queue(), Queue()
 
     for player in players:
-        thread = threading.Thread(target=get_individual_vicio, args=(players[player], queue_semana, queue_hoy))
-        thread.start()
-        threads_list.append(thread)
+        process = Process(target=get_individual_vicio, args=(players[player], queue_semana, queue_hoy))
+        process.start()
+        processes_list.append(process)
 
 
-    for thread in threads_list:
-        thread.join()
+    for p in processes_list:
+        p.join()
 
     while not queue_hoy.empty():
         vicios_hoy.append(queue_hoy.get())
@@ -421,16 +420,16 @@ def get_player_last_time(player_id, queue):
 
 def get_last_played(players) -> list:
     queue = Queue()
-    threads_list = []
+    processes_list = []
     players_timestamps = []
 
     for player in players:
-        thread = threading.Thread(target=get_player_last_time, args=(players[player], queue))
-        thread.start()
-        threads_list.append(thread)
+        process = Process(target=get_player_last_time, args=(players[player], queue))
+        process.start()
+        processes_list.append(process)
 
-    for thread in threads_list:
-        thread.join()
+    for p in processes_list:
+        p.join()
 
 
     while not queue.empty():
