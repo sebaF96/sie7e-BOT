@@ -11,20 +11,18 @@ class Constants(Enum):
                       "-Steam_icon_logo.svg.png "
     DOTA2_IMAGE_URL = "https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png"
 
-    HELP_MESSAGE = """** COMANDOS **
-    **`!help`** --> muestra este mensaje
-    **`!players`** --> muestra los players de los q podes ver la data
-    **`!stats <player>`** --> muestra las ultimas 5 partidas de ese player
-    **`!wl <player>`** --> muestra el W - L de las ultimas 20 partidas de ese player
-    **`!refresh <player>`** --> actualiza las estadisticas de ese player
-    **`!last <player>`** ---> muestra la ultima partida de ese player
-    **`!avg <player>`** ---> muestra las estadisticas de ese player (ultimas 20 partidas)
-    **`!total <player>`** ---> muestra los totales de ese player
-    **`!records <player>`** ---> muestra los records de ese player en distintos games
-    **`!wins`** ---> muestra un ranking de los mas ganadores en los ultimos 7 dias
-    **`!on`** ---> muestra una lista de los pibes que estan jugando Dota 2 en este momento
-    **`!vicio`** ---> ranking de partidas jugadas hoy y en la semana
-    **`!lp`** ---> muestra los players que han jugado mas recientemente """
+    HELP_COMMANDS = {"!help": "muestra este mensaje", "!players": "muestra los players de los que podes ver la data",
+                     "!stats <player>": "muestra las ultimas 5 partidas de ese player",
+                     "!wl <player>": "muestra el W - L de las ultimas 20 partidas de ese player",
+                     "!refresh <player>": "actualiza las estadisticas de ese player",
+                     "!last <player>": "muestra la ultima partida de ese player",
+                     "!avg <player>": "muestra las estadisticas de ese player (ultimas 20 partidas)",
+                     "!total <player>": "muestra los totales de ese player",
+                     "!records <player>": "muestra los records de ese player en distintos games",
+                     "!wins": "muestra un ranking de los mas ganadores en los ultimos 7 dias",
+                     "!on": "muestra una lista de los pibes que estan jugando Dota 2 en este momento",
+                     "!vicio": "ranking de partidas jugadas hoy y en la semana",
+                     "!lp": "muestra los players que han jugado mas recientemente"}
 
 
 class Fetcher(Enum):
