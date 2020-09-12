@@ -9,7 +9,7 @@ class AmongUS(commands.Cog):
         self.__code = 'zzzz'
 
     @commands.has_role('@moderator')
-    @commands.command()
+    @commands.command(aliases=['m'])
     async def mute(self, ctx):
         """Mute all the members of the command author's current voice channel"""
         if not ctx.guild:
@@ -25,7 +25,7 @@ class AmongUS(commands.Cog):
         await ctx.send(':mute:', delete_after=15)
 
     @commands.has_role('@moderator')
-    @commands.command()
+    @commands.command(aliases=['u'])
     async def unmute(self, ctx):
         """Unmute all the members of the command author's current voice channel"""
         if not ctx.guild:
@@ -41,7 +41,7 @@ class AmongUS(commands.Cog):
         await ctx.send(':loud_sound:', delete_after=15)
 
 
-    @commands.command()
+    @commands.command(aliases=['codigo'])
     async def code(self, ctx, argument=None):
         """Set and sends the code if any and valid. Otherwise sends the old code setted"""
         if ctx.guild and argument is not None:

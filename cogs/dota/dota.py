@@ -16,6 +16,7 @@ def to_lower(argument: str):
 
 class Dota2(commands.Cog):
     """Cog to group all Dota 2 related commands"""
+
     def __init__(self, bot):
         self.__bot = bot
         self.__players = read_players()
@@ -170,7 +171,7 @@ class Dota2(commands.Cog):
         except KeyError:
             await ctx.send(Constants.PRIVATE_PROFILE.value)
 
-    @commands.command()
+    @commands.command(aliases=['win'])
     async def wins(self, ctx):
         """Shows a ranking of wins in the last 7 days"""
 
@@ -278,13 +279,11 @@ class Dota2(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def displaydailywinners(self, ctx):
-        """Daily ranking of winners. Just can be called from another bot or WebHook"""
+    @commands.is_owner()
+    @commands.command(aliases=['displaydayliwinners', 'ddw'])
+    async def winners(self, ctx):
+        """Daily ranking of winners"""
 
-        if not ctx.author.bot:
-            await ctx.send('?')
-            return
-
-        await ctx.message.delete(delay=0.1)
+        if ctx.guild:
+            await ctx.message.delete()
         await ctx.send(fetcher.wins_rank(self.__players, daily=True))
