@@ -10,6 +10,7 @@ class Constants(Enum):
     STEAM_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/1024px" \
                       "-Steam_icon_logo.svg.png "
     DOTA2_IMAGE_URL = "https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png"
+    AMONG_US_IMAGE_URL = "https://cdn.discordapp.com/app-assets/477175586805252107/481347538054545418.png"
 
     HELP_COMMANDS = {"!help": "muestra este mensaje", "!players": "muestra los players de los que podes ver la data",
                      "!stats <player>": "muestra las ultimas 5 partidas de ese player",

@@ -1,3 +1,5 @@
+import discord
+from constants import Constants
 from discord.ext import commands
 
 
@@ -52,3 +54,25 @@ class AmongUS(commands.Cog):
 
         letters = [f':regional_indicator_{letter}:' for letter in self.__code]
         await ctx.send(f'{letters[0]} {letters[1]} {letters[2]} {letters[3]}')
+
+
+    @commands.guild_only()
+    @commands.command(aliases=['amongo', 'amongus'])
+    async def among(self, ctx):
+        """Sends the name of the users that are playing Among Us ATM"""
+
+        members_among = [m for m in ctx.guild.members if m.activity is not None and m.activity.name == 'Among Us']
+
+        embed = discord.Embed(title='Among US', color=discord.Colour.orange())
+        embed.set_author(name='sie7e-BOT', icon_url=Constants.FOOTER_IMAGE_URL.value)
+        embed.set_thumbnail(url=Constants.AMONG_US_IMAGE_URL.value)
+
+        field_value = str()
+        if len(members_among) > 0:
+            for m in members_among:
+                field_value += f'- {m.name}\n'
+        else:
+            field_value = 'Nadie'
+        embed.add_field(name=f'Gente jugando a esta shit ({len(members_among)})', value=field_value)
+
+        await ctx.send(embed=embed)
