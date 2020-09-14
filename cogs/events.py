@@ -20,5 +20,7 @@ class Events(commands.Cog):
             await ctx.send("Tenes que mandar el player con este comando")
         if isinstance(error, commands.errors.CommandNotFound):
             ...
+        if isinstance(error, commands.errors.MissingRole):
+            ...
         else:
             print(f'{error} [command {ctx.command}]')

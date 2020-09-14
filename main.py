@@ -15,7 +15,7 @@ async def after_any_command(ctx):
     if ctx.author.name == 'Noah-':
         return
     where = ctx.guild if ctx.guild else 'DM channel'
-    print(f'{ctx.author} used command [{ctx.command}] in {where}')
+    print(f'{ctx.author} used command [{ctx.message.content}] in {where}')
 
 
 if __name__ == '__main__':
