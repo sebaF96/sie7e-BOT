@@ -37,6 +37,7 @@ class Fetcher(Enum):
 
     # DotaConstants RAW data
     DOTACONSTANTS_HEROES_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/heroes.json"
+    DOTACONSTANTS_ITEMS_URL = "https://raw.githubusercontent.com/odota/dotaconstants/master/build/items.json"
 
     # Steam
     HEROPICTURE_BASE_URL = "https://steamcdn-a.akamaihd.net"

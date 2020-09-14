@@ -1,14 +1,15 @@
 from PIL import Image
-import requests
 from io import BytesIO
+from constants import Fetcher
+import requests
 import json
 
 
 def fetch_items():
-    response = requests.get("https://raw.githubusercontent.com/odota/dotaconstants/master/build/items.json")
+    response = requests.get(Fetcher.DOTACONSTANTS_ITEMS_URL.value)
     full_items_dict = json.loads(response.text)
     min_items_dict = {}
-    base_url = "https://steamcdn-a.akamaihd.net"
+    base_url = Fetcher.HEROPICTURE_BASE_URL.value
     for item in full_items_dict:
         min_items_dict[full_items_dict[item]["id"]] = base_url + full_items_dict[item]["img"]
 
