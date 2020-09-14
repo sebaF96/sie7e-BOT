@@ -29,15 +29,15 @@ class Dota2(commands.Cog):
             await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
         else:
             try:
-                stats_obj = fetcher.stats(self.__players[player])
-                embed = discord.Embed(title=stats_obj.get_titulo(),
-                                      description=stats_obj.get_descripcion(),
+                player_stats = fetcher.stats(self.__players[player])
+                embed = discord.Embed(title=player_stats.get_titulo(),
+                                      description=player_stats.get_descripcion(),
                                       colour=discord.Color.light_grey())
 
                 for i in range(0, 5, 1):
-                    embed.add_field(name=stats_obj.get_game(i), value=stats_obj.get_delimiter(), inline=False)
+                    embed.add_field(name=player_stats.get_game(i), value=player_stats.get_delimiter(), inline=False)
 
-                embed.set_thumbnail(url=stats_obj.get_thumbnail())
+                embed.set_thumbnail(url=player_stats.get_thumbnail())
 
                 embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
                 await ctx.send(embed=embed)
@@ -124,20 +124,20 @@ class Dota2(commands.Cog):
             await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
             return
         try:
-            avg_obj = fetcher.avg(self.__players[player])
-            embed = discord.Embed(title=avg_obj.get_titulo(), colour=discord.Color.green(),
+            player_avg = fetcher.avg(self.__players[player])
+            embed = discord.Embed(title=player_avg.get_titulo(), colour=discord.Color.green(),
                                   description="Estadisticas de las ultimas 20 partidas")
 
-            embed.set_thumbnail(url=avg_obj.get_thumbnail())
-            embed.add_field(name="Kills", value=avg_obj.get_kills())
-            embed.add_field(name="Muertes", value=avg_obj.get_muertes())
-            embed.add_field(name="Assists", value=avg_obj.get_assists())
-            embed.add_field(name="OPM", value=avg_obj.get_opm())
-            embed.add_field(name="EPM", value=avg_obj.get_epm())
-            embed.add_field(name="Last Hits", value=avg_obj.get_lh())
-            embed.add_field(name="Denegados", value=avg_obj.get_denegados())
-            embed.add_field(name="Daño", value=avg_obj.get_dano())
-            embed.add_field(name="Nivel", value=avg_obj.get_nivel())
+            embed.set_thumbnail(url=player_avg.get_thumbnail())
+            embed.add_field(name="Kills", value=player_avg.get_kills())
+            embed.add_field(name="Muertes", value=player_avg.get_muertes())
+            embed.add_field(name="Assists", value=player_avg.get_assists())
+            embed.add_field(name="OPM", value=player_avg.get_opm())
+            embed.add_field(name="EPM", value=player_avg.get_epm())
+            embed.add_field(name="Last Hits", value=player_avg.get_lh())
+            embed.add_field(name="Denegados", value=player_avg.get_denegados())
+            embed.add_field(name="Daño", value=player_avg.get_dano())
+            embed.add_field(name="Nivel", value=player_avg.get_nivel())
             embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
             await ctx.send(embed=embed)
@@ -152,19 +152,19 @@ class Dota2(commands.Cog):
             await ctx.send(Constants.PLAYER_NOT_RECOGNIZED.value)
             return
         try:
-            total_obj = fetcher.total(self.__players[player])
-            embed = discord.Embed(title=total_obj.get_titulo(), colour=discord.Color.purple(),
+            player_total = fetcher.total(self.__players[player])
+            embed = discord.Embed(title=player_total.get_titulo(), colour=discord.Color.purple(),
                                   description="Contador de todas las partidas jugadas")
 
-            embed.set_thumbnail(url=total_obj.get_thumbnail())
-            embed.add_field(name="Partidas", value=total_obj.get_total_games())
-            embed.add_field(name="Winrate", value=total_obj.get_winrate())
-            embed.add_field(name="Kills", value=total_obj.get_kills())
-            embed.add_field(name="Muertes", value=total_obj.get_muertes())
-            embed.add_field(name="Assists", value=total_obj.get_assists())
-            embed.add_field(name="Last Hits", value=total_obj.get_lh())
-            embed.add_field(name="Denegados", value=total_obj.get_denegados())
-            embed.add_field(name="Daño", value=total_obj.get_dano())
+            embed.set_thumbnail(url=player_total.get_thumbnail())
+            embed.add_field(name="Partidas", value=player_total.get_total_games())
+            embed.add_field(name="Winrate", value=player_total.get_winrate())
+            embed.add_field(name="Kills", value=player_total.get_kills())
+            embed.add_field(name="Muertes", value=player_total.get_muertes())
+            embed.add_field(name="Assists", value=player_total.get_assists())
+            embed.add_field(name="Last Hits", value=player_total.get_lh())
+            embed.add_field(name="Denegados", value=player_total.get_denegados())
+            embed.add_field(name="Daño", value=player_total.get_dano())
             embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
             await ctx.send(embed=embed)
@@ -240,21 +240,21 @@ class Dota2(commands.Cog):
             return
 
         try:
-            records_obj = fetcher.get_records(self.__players[player])
-            embed = discord.Embed(title=records_obj.get_titulo(), colour=discord.Color.blue(),
+            player_records = fetcher.get_records(self.__players[player])
+            embed = discord.Embed(title=player_records.get_titulo(), colour=discord.Color.blue(),
                                   description="Records de todas las partidas jugadas")
 
-            embed.set_thumbnail(url=records_obj.get_thumbnail())
-            embed.add_field(name="Kills", value=records_obj.get_kills(), inline=False)
-            embed.add_field(name="OPM", value=records_obj.get_opm(), inline=False)
-            embed.add_field(name="EPM", value=records_obj.get_epm(), inline=False)
-            embed.add_field(name="Last Hits", value=records_obj.get_last_hits(), inline=False)
-            embed.add_field(name="Denegados", value=records_obj.get_denies(), inline=False)
-            embed.add_field(name="Duracion", value=records_obj.get_duration(), inline=False)
-            embed.add_field(name="Assists", value=records_obj.get_assists(), inline=False)
-            embed.add_field(name="Daño", value=records_obj.get_hero_damage(), inline=False)
-            embed.add_field(name="Daño a torres", value=records_obj.get_tower_damage(), inline=False)
-            embed.add_field(name="Curacion", value=records_obj.get_hero_healing(), inline=False)
+            embed.set_thumbnail(url=player_records.get_thumbnail())
+            embed.add_field(name="Kills", value=player_records.get_kills(), inline=False)
+            embed.add_field(name="OPM", value=player_records.get_opm(), inline=False)
+            embed.add_field(name="EPM", value=player_records.get_epm(), inline=False)
+            embed.add_field(name="Last Hits", value=player_records.get_last_hits(), inline=False)
+            embed.add_field(name="Denegados", value=player_records.get_denies(), inline=False)
+            embed.add_field(name="Duracion", value=player_records.get_duration(), inline=False)
+            embed.add_field(name="Assists", value=player_records.get_assists(), inline=False)
+            embed.add_field(name="Daño", value=player_records.get_hero_damage(), inline=False)
+            embed.add_field(name="Daño a torres", value=player_records.get_tower_damage(), inline=False)
+            embed.add_field(name="Curacion", value=player_records.get_hero_healing(), inline=False)
 
             embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
