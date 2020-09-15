@@ -8,7 +8,7 @@ class AmongUS(commands.Cog):
 
     def __init__(self, bot):
         self.__bot = bot
-        self.__code = 'zzzz'
+        self.__code = 'no'
 
     @commands.has_role('@moderator')
     @commands.command(aliases=['m'])
@@ -49,11 +49,11 @@ class AmongUS(commands.Cog):
         if ctx.guild and argument is not None:
             await ctx.message.delete(delay=0.1)
 
-        if argument is not None and len(argument) == 4 and argument.isalpha():
+        if argument is not None and (len(argument) == 4 or len(argument) == 6) and argument.isalpha():
             self.__code = argument.lower()
 
         letters = [f':regional_indicator_{letter}:' for letter in self.__code]
-        await ctx.send(f'{letters[0]} {letters[1]} {letters[2]} {letters[3]}')
+        await ctx.send(f'{" ".join(letters)}')
 
 
     @commands.guild_only()
