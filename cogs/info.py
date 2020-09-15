@@ -95,19 +95,23 @@ class Information(commands.Cog):
 
         member_number = sorted(server.members, key=lambda m: m.joined_at).index(user) + 1
 
-        em = discord.Embed(colour=user.colour, description=status)
+        em = discord.Embed(colour=user.colour)
 
         userinfo_value = f"- Account created {user.created_at.__format__('%A, %d. %B %Y')}\n" \
                          f"- Profile: {user.mention}\n" \
                          f"- ID: {user.id}"
 
-        em.add_field(name='User info', value=userinfo_value, inline=False)
+        em.add_field(name='\nUser info', value=userinfo_value, inline=False)
 
         memberinfo_value = f"- Member since {user.joined_at.__format__('%A, %d. %B %Y')}\n" \
                            f"- Member n° {member_number}\n" \
                            f"- Top role: {user.top_role.mention if user.top_role.name != '@everyone' else 'None'}"
 
-        em.add_field(name='Member info', value=memberinfo_value, inline=False)
+        em.add_field(name='\nMember info', value=memberinfo_value, inline=False)
+
+
+        em.add_field(name='\nStatus', value=status)
+
 
         em.set_thumbnail(url=avi)
         em.set_author(name=user, icon_url=server.icon_url)
