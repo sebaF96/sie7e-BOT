@@ -4,3 +4,5 @@ __pycache__/
 cogs/dota/last_match_items.png
 .env
 boot.sh
+cogs/twitch/generate_oauth.py
+
