@@ -12,7 +12,8 @@ class Constants(Enum):
     DOTA2_IMAGE_URL = "https://deadlysurprise.github.io/d2LoadingScreens/d2logo.png"
     AMONG_US_IMAGE_URL = "https://cdn.discordapp.com/app-assets/477175586805252107/481347538054545418.png"
 
-    HELP_COMMANDS = {"!help": "muestra este mensaje", "!players": "muestra los players de los que podes ver la data",
+    HELP_COMMANDS = {"!serverinfo": "muestra informacion acerca del servidor",
+                     "!userinfo <user>": "muestra informacion tuya o del usuario que mencionas con @",
                      "!stats <player>": "muestra las ultimas 5 partidas de ese player",
                      "!wl <player>": "muestra el W - L de las ultimas 20 partidas de ese player",
                      "!refresh <player>": "actualiza las estadisticas de ese player",

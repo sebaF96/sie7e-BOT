@@ -1,10 +1,23 @@
 import discord
 from discord.ext import commands
+from constants import Constants
 
 
 class Information(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.__bot = bot
+
+    @commands.command(aliases=['help', 'commands', 'comandos'])
+    async def help_command(self, ctx):
+        embed = discord.Embed(title='Comandos de sie7e-BOT', color=discord.Color.blue())
+
+        embed.set_author(name='sie7e-BOT', icon_url=Constants.FOOTER_IMAGE_URL.value)
+        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+
+        for command, message in Constants.HELP_COMMANDS.value.items():
+            embed.add_field(name=f'**`{command}`**', value=f'{message}', inline=False)
+
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=['server', 'si', 'svi'], no_pm=True)
     @commands.guild_only()
