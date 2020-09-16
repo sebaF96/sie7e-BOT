@@ -18,7 +18,6 @@ def get_hero_dict() -> dict:
 
 
 def get_hero_picture(icon=False) -> dict:
-
     response = requests.get(FConstants.DOTACONSTANTS_HEROES_URL.value)
     full_hero_dict = json.loads(response.text)
     base_url = FConstants.HEROPICTURE_BASE_URL.value
@@ -70,6 +69,13 @@ def get_avatar_url(player_id: int):
     steam_profile = json.loads(response.text)
 
     return steam_profile["response"]["players"][0]["avatarfull"]
+
+
+def get_rank(player_id: int):
+    odota_api_url = FConstants.API_PLAYERS_URL.value + str(player_id)
+    odota_profile = json.loads(requests.get(odota_api_url).text)
+
+    return odota_profile['rank_tier']
 
 
 def is_radiant(player_slot: int) -> bool:
@@ -128,7 +134,6 @@ def stats(player_id: int) -> Stats:
     return stats_obj
 
 
-
 def refresh(player_id: int):
     requests.post(FConstants.API_PLAYERS_URL.value + str(player_id) + '/refresh')
 
@@ -170,7 +175,7 @@ def get_build(match_id: int, player_slot: int) -> list:
 def last(player_id: int) -> Last:
     response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]    # 22 is ranked
+    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
     match = recent_matches[0]
     radiant = is_radiant(match['player_slot'])
 
@@ -192,7 +197,6 @@ def last(player_id: int) -> Last:
     last_game.set_curacion(str("{:,}".format(match["hero_healing"]).replace(',', '.')))
     last_game.set_time_ago(format_time_ago(match['start_time'] + match['duration']))
     last_game.set_build(get_build(match["match_id"], match["player_slot"]))
-
 
     return last_game
 
@@ -241,7 +245,6 @@ def fetch_wins(player_id, queue, date):
         queue.put((player_name, str(wins)))
     except KeyError:
         pass
-
 
 
 def wins_rank(players: dict, daily=False) -> str:
@@ -341,7 +344,6 @@ def get_vicios(players):
         process.start()
         processes_list.append(process)
 
-
     for p in processes_list:
         p.join()
 
@@ -385,14 +387,20 @@ def get_records(player_id):
     lh_game = sorted(games_list, key=lambda x: x["last_hits"], reverse=True)[0]
     record.set_last_hits(f"{lh_game['last_hits']} ({HERO_DICT[lh_game['hero_id']]})")
 
-    damage_game = sorted([g for g in games_list if g["hero_damage"] is not None], key=lambda x: x["hero_damage"], reverse=True)[0]
-    record.set_hero_damage(str("{:,}".format(damage_game["hero_damage"]).replace(',', '.')) + " (" + HERO_DICT[damage_game["hero_id"]] + ")")
+    damage_game = \
+    sorted([g for g in games_list if g["hero_damage"] is not None], key=lambda x: x["hero_damage"], reverse=True)[0]
+    record.set_hero_damage(str("{:,}".format(damage_game["hero_damage"]).replace(',', '.')) + " (" + HERO_DICT[
+        damage_game["hero_id"]] + ")")
 
-    tower_damage_game = sorted([g for g in games_list if g["tower_damage"] is not None], key=lambda x: x["tower_damage"], reverse=True)[0]
-    record.set_tower_damage(str("{:,}".format(tower_damage_game["tower_damage"]).replace(',', '.')) + " (" + HERO_DICT[tower_damage_game["hero_id"]] + ")")
+    tower_damage_game = \
+    sorted([g for g in games_list if g["tower_damage"] is not None], key=lambda x: x["tower_damage"], reverse=True)[0]
+    record.set_tower_damage(str("{:,}".format(tower_damage_game["tower_damage"]).replace(',', '.')) + " (" + HERO_DICT[
+        tower_damage_game["hero_id"]] + ")")
 
-    heal_game = sorted([g for g in games_list if g["hero_healing"] is not None], key=lambda x: x["hero_healing"], reverse=True)[0]
-    record.set_hero_healing(str("{:,}".format(heal_game["hero_healing"]).replace(',', '.')) + " (" + HERO_DICT[heal_game["hero_id"]] + ")")
+    heal_game = \
+    sorted([g for g in games_list if g["hero_healing"] is not None], key=lambda x: x["hero_healing"], reverse=True)[0]
+    record.set_hero_healing(
+        str("{:,}".format(heal_game["hero_healing"]).replace(',', '.')) + " (" + HERO_DICT[heal_game["hero_id"]] + ")")
 
     denies_game = sorted(games_list, key=lambda x: x["denies"], reverse=True)[0]
     record.set_denies(f"{denies_game['denies']} ({HERO_DICT[denies_game['hero_id']]})")
@@ -401,7 +409,6 @@ def get_records(player_id):
 
 
 def get_player_last_time(player_id, queue):
-
     response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
 
@@ -430,7 +437,6 @@ def get_last_played(players) -> list:
 
     for p in processes_list:
         p.join()
-
 
     while not queue.empty():
         players_timestamps.append(queue.get())

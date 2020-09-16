@@ -62,24 +62,19 @@ def paste_image(image1, image2, x, y):
     return Image.alpha_composite(image1, temp_image)
 
 
-def dota_rank_icon(rank_tier):
-    filename = 'last_medal.png'
+def dota_rank_icon(rank_tier: int):
+    filename = 'cogs/dota/last_medal.png'
     if rank_tier is None:
         rank_tier = 0
 
     badge_num = rank_tier // 10
     stars_num = min(rank_tier % 10, 7)
 
-    image = Image.open(f"images/rank_{badge_num}.png")
+    image = Image.open(f"cogs/dota/images/rank_{badge_num}.png")
 
     if stars_num > 0:
-        stars_image = Image.open(f"images/stars_{stars_num}.png")
+        stars_image = Image.open(f"cogs/dota/images/stars_{stars_num}.png")
         image = paste_image(image, stars_image, 0, 0)
 
     image.save(filename, "png")
-
-    return filename
-
-
-if __name__ == '__main__':
-    dota_rank_icon(80)
+    return image
