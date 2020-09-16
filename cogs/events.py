@@ -24,3 +24,9 @@ class Events(commands.Cog):
             ...
         else:
             print(f'{error} [command {ctx.command}]')
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        channel = member.guild.system_channel
+        cog = self.__bot.get_cog('Information')
+        await cog.userinfo(ctx=channel, member=member)

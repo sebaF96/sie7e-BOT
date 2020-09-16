@@ -19,10 +19,10 @@ class Information(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['server', 'si', 'svi'], no_pm=True)
+    @commands.command(aliases=['server', 'si'])
     @commands.guild_only()
     async def serverinfo(self, ctx):
-        """See information about the server."""
+        """Gets infor about the guild"""
 
         # Channels count
         text_channels = len([x for x in ctx.guild.channels if isinstance(x, discord.TextChannel)])
@@ -56,10 +56,10 @@ class Information(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['ui'], no_pm=True)
+    @commands.command(aliases=['ui'])
     @commands.guild_only()
     async def userinfo(self, ctx, *, member: discord.Member = None):
-        """Get information about a member of a server"""
+        """Gets info about a member"""
         server = ctx.guild
         user = member or ctx.message.author
 
@@ -76,11 +76,11 @@ class Information(commands.Cog):
         userinfo_value = f"- Account created {user.created_at.__format__('%d %b %Y')}\n- Profile: {user.mention}\n- ID: {user.id}"""
         memberinfo_value = f"- Member since {user.joined_at.__format__('%d %b %Y')}\n- Member n° {member_number}\n- Top role: {user.top_role.mention if user.top_role.name != '@everyone' else 'None'}"
 
-        em = discord.Embed(colour=user.colour)
-        em.set_thumbnail(url=user.avatar_url)
-        em.set_author(name=user, icon_url=server.icon_url)
-        em.add_field(name='User info', value=userinfo_value, inline=False)
-        em.add_field(name='Member info', value=memberinfo_value, inline=False)
-        em.add_field(name='Status', value=status)
+        embed = discord.Embed(colour=user.colour)
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.set_author(name=user, icon_url=server.icon_url)
+        embed.add_field(name='User info', value=userinfo_value, inline=False)
+        embed.add_field(name='Member info', value=memberinfo_value, inline=False)
+        embed.add_field(name='Status', value=status)
 
-        await ctx.send(embed=em)
+        await ctx.send(embed=embed, delete_after=7200)
