@@ -160,7 +160,11 @@ class Dota2(commands.Cog):
             embed = discord.Embed(title=player_total.get_titulo(), colour=discord.Color.purple(),
                                   description="Contador de todas las partidas jugadas")
 
-            embed.set_thumbnail(url=player_total.get_thumbnail())
+            drawdota.dota_rank_icon(fetcher.get_rank(self.__players[player]))
+            file = discord.File("cogs/dota/last_medal.png", filename="total.png")
+
+            embed.set_thumbnail(url="attachment://total.png")
+            embed.set_author(name=fetcher.get_nick(self.__players[player]), icon_url=fetcher.get_avatar_url(self.__players[player]))
             embed.add_field(name="Partidas", value=player_total.get_total_games())
             embed.add_field(name="Winrate", value=player_total.get_winrate())
             embed.add_field(name="Kills", value=player_total.get_kills())
@@ -171,7 +175,7 @@ class Dota2(commands.Cog):
             embed.add_field(name="Daño", value=player_total.get_dano())
             embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, file=file)
         except KeyError:
             await ctx.send(Constants.PRIVATE_PROFILE.value)
 
