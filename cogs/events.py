@@ -17,12 +17,24 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+
+        # Dota commands that needs a player argument
         if isinstance(error, commands.errors.MissingRequiredArgument):
             await ctx.send("Tenes que mandar el player con este comando")
-        if isinstance(error, commands.errors.CommandNotFound):
-            ...
-        if isinstance(error, commands.errors.MissingRole):
+
+        # Misspelled commands, do nothing
+        elif isinstance(error, commands.errors.CommandNotFound):
+            pass
+
+        # Commands that needs role permission
+        elif isinstance(error, commands.errors.MissingRole):
             await ctx.send("?")
+
+        # Commands with cooldown
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.message.add_reaction('🤔')
+            await ctx.message.delete(delay=10)
+
         else:
             print(f'{error} [command {ctx.command}]')
 
