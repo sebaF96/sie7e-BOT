@@ -22,7 +22,7 @@ class Events(commands.Cog):
         if isinstance(error, commands.errors.CommandNotFound):
             ...
         if isinstance(error, commands.errors.MissingRole):
-            ...
+            await ctx.send("?")
         else:
             print(f'{error} [command {ctx.command}]')
 
