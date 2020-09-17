@@ -21,6 +21,9 @@ class Dota2(commands.Cog):
         self.__bot = bot
         self.__players = read_players()
 
+    async def cog_before_invoke(self, ctx):
+        await ctx.channel.trigger_typing()
+
     @commands.command()
     async def stats(self, ctx, player: to_lower):
         """Shows last 5 games of that player"""
@@ -171,7 +174,7 @@ class Dota2(commands.Cog):
             embed.add_field(name="Muertes", value=player_total.get_muertes())
             embed.add_field(name="Assists", value=player_total.get_assists())
             embed.add_field(name="Last Hits", value=player_total.get_lh())
-            embed.add_field(name="Denegados", value=player_total.get_denegados())
+            embed.add_field(name="Denies", value=player_total.get_denegados())
             embed.add_field(name="Daño", value=player_total.get_dano())
             embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
@@ -216,7 +219,6 @@ class Dota2(commands.Cog):
     async def vicio(self, ctx):
         """Shows a weekly and daily ranking of games played"""
 
-        await ctx.send("Contando partidas de cada vicio... :hourglass_flowing_sand:", delete_after=3)
         vicios_hoy, vicios_semana = fetcher.get_vicios(self.__players)
 
         embed = discord.Embed(colour=discord.Color.dark_blue(), title="Vicios",
