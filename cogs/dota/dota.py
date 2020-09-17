@@ -60,6 +60,7 @@ class Dota2(commands.Cog):
             fetcher.refresh(self.__players[player])
             await ctx.send("Ok")
 
+    @commands.cooldown(rate=1, per=15, type=commands.BucketType.channel)
     @commands.command(name='players')
     async def players_command(self, ctx):
         """Show the list of players that the bot knows with their in-game nicks"""
@@ -134,7 +135,8 @@ class Dota2(commands.Cog):
             drawdota.dota_rank_icon(fetcher.get_rank(self.__players[player]))
             file = discord.File("cogs/dota/last_medal.png", filename="avg.png")
 
-            embed.set_author(name=fetcher.get_nick(self.__players[player]), icon_url=fetcher.get_avatar_url(self.__players[player]))
+            embed.set_author(name=fetcher.get_nick(self.__players[player]),
+                             icon_url=fetcher.get_avatar_url(self.__players[player]))
             embed.set_thumbnail(url="attachment://avg.png")
             embed.add_field(name="Kills", value=player_avg.get_kills())
             embed.add_field(name="Muertes", value=player_avg.get_muertes())
@@ -167,7 +169,8 @@ class Dota2(commands.Cog):
             file = discord.File("cogs/dota/last_medal.png", filename="total.png")
 
             embed.set_thumbnail(url="attachment://total.png")
-            embed.set_author(name=fetcher.get_nick(self.__players[player]), icon_url=fetcher.get_avatar_url(self.__players[player]))
+            embed.set_author(name=fetcher.get_nick(self.__players[player]),
+                             icon_url=fetcher.get_avatar_url(self.__players[player]))
             embed.add_field(name="Partidas", value=player_total.get_total_games())
             embed.add_field(name="Winrate", value=player_total.get_winrate())
             embed.add_field(name="Kills", value=player_total.get_kills())
@@ -215,6 +218,7 @@ class Dota2(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.cooldown(rate=1, per=20, type=commands.BucketType.channel)
     @commands.command(aliases=['vicios'])
     async def vicio(self, ctx):
         """Shows a weekly and daily ranking of games played"""
@@ -272,6 +276,7 @@ class Dota2(commands.Cog):
         except KeyError:
             await ctx.send(Constants.PRIVATE_PROFILE.value)
 
+    @commands.cooldown(rate=1, per=20, type=commands.BucketType.channel)
     @commands.command(aliases=['lg'])
     async def lp(self, ctx):
         """Shows 5 most recent games of any known player"""
