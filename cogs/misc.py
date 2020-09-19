@@ -1,7 +1,5 @@
 import datetime
 import time
-import discord
-from constants import Constants
 from discord.ext import commands
 
 
@@ -15,19 +13,6 @@ class Misc(commands.Cog):
     async def hello(self, ctx):
         """Just says hello"""
         await ctx.send(f"Hello {ctx.author.name}")
-
-    @commands.command(aliases=['help', 'commands', 'comandos'])
-    async def help_command(self, ctx):
-        embed = discord.Embed(title='Comandos de sie7e-BOT', description='Todos los comandos empiezan con !',
-                              color=discord.Color.blue())
-
-        embed.set_author(name='sie7e-BOT', icon_url=Constants.FOOTER_IMAGE_URL.value)
-        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
-
-        for command, message in Constants.HELP_COMMANDS.value.items():
-            embed.add_field(name=f'**`{command}`**', value=f'{message}', inline=False)
-
-        await ctx.send(embed=embed)
 
     @commands.command()
     async def uptime(self, ctx):

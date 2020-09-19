@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageDraw
 from io import BytesIO
 from constants import Fetcher
 import requests
@@ -54,3 +54,27 @@ def save_build_image(build):
     result.thumbnail((result.size[0] * 0.6, result.size[1] * 0.6), Image.ANTIALIAS)
     result.save("cogs/dota/last_match_items.png")
     return result
+
+
+def paste_image(image1, image2, x, y):
+    temp_image = Image.new("RGBA", image1.size)
+    temp_image.paste(image2, (x, y))
+    return Image.alpha_composite(image1, temp_image)
+
+
+def dota_rank_icon(rank_tier: int):
+    filename = 'cogs/dota/last_medal.png'
+    if rank_tier is None:
+        rank_tier = 0
+
+    badge_num = rank_tier // 10
+    stars_num = min(rank_tier % 10, 7)
+
+    image = Image.open(f"cogs/dota/images/rank_{badge_num}.png")
+
+    if stars_num > 0:
+        stars_image = Image.open(f"cogs/dota/images/stars_{stars_num}.png")
+        image = paste_image(image, stars_image, 0, 0)
+
+    image.save(filename, "png")
+    return image

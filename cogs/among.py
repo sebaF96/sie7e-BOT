@@ -11,7 +11,8 @@ class AmongUS(commands.Cog):
         self.__code = 'no'
 
     @commands.has_role('@moderator')
-    @commands.command(aliases=['m'])
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.channel)
+    @commands.command(aliases=['m', 'M'])
     async def mute(self, ctx):
         """Mute all the members of the command author's current voice channel"""
         if not ctx.guild:
@@ -27,7 +28,8 @@ class AmongUS(commands.Cog):
         await ctx.send(':mute:', delete_after=15)
 
     @commands.has_role('@moderator')
-    @commands.command(aliases=['u'])
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.channel)
+    @commands.command(aliases=['u', 'U'])
     async def unmute(self, ctx):
         """Unmute all the members of the command author's current voice channel"""
         if not ctx.guild:
