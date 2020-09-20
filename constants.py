@@ -13,6 +13,7 @@ class Constants(Enum):
     AMONG_US_IMAGE_URL = "https://cdn.discordapp.com/app-assets/477175586805252107/481347538054545418.png"
     TWITCH_BASE_URL = "https://www.twitch.tv/"
     HELIX_BASE_URL = "https://api.twitch.tv/helix/"
+    TWITCH_LOGO_URL = "https://pbs.twimg.com/profile_images/1177235979913924608/K-ZDJZli_400x400.jpg"
 
     HELP_COMMANDS = {"!serverinfo": "muestra informacion acerca del servidor",
                      "!userinfo <user>": "muestra informacion tuya o del usuario que mencionas con @",
