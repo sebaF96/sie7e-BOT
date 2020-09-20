@@ -1,6 +1,6 @@
 import discord
-from discord.ext import commands
 import cogs.twitch.helix as helix
+from discord.ext import commands, tasks
 from constants import Constants
 
 
@@ -8,10 +8,10 @@ class Twitch(commands.Cog):
 
     def __init__(self, bot):
         self.__bot = bot
+        self.__followed_channels = ['pancho_toni', 'coscu', 'duendepablo', 'goncho']
+        self.twitch_notifier.start()
 
-    @commands.dm_only()
-    @commands.command()
-    @commands.is_owner()
+
     async def twitch(self, ctx, streamer=None):
         """Sends and embed saying that x player is live on twitch"""
         if streamer is None:
@@ -19,10 +19,9 @@ class Twitch(commands.Cog):
 
         if helix.is_live(streamer):
             stream = helix.LiveStream(streamer)
-            url = stream.url
 
-            embed = discord.Embed(title=url, url=url, color=0x97197d)
-            embed.set_author(name=f"{streamer} esta en vivo!", url=url, icon_url=Constants.TWITCH_LOGO_URL.value)
+            embed = discord.Embed(title=stream.url, url=stream.url, color=0x97197d)
+            embed.set_author(name=f"{streamer} esta en vivo!", url=stream.url, icon_url=Constants.TWITCH_LOGO_URL.value)
             embed.set_thumbnail(url=stream.channel_photo_url)
             embed.add_field(name="Titulo", value=stream.title, inline=False)
             embed.add_field(name="Jugando a", value=stream.game_name, inline=False)
@@ -32,5 +31,21 @@ class Twitch(commands.Cog):
 
             await ctx.send(embed=embed)
 
-        else:
-            await ctx.send('No live')
+    @tasks.loop(minutes=10.0)
+    async def twitch_notifier(self):
+
+        for channel in self.__followed_channels:
+            if helix.is_live(channel):
+                print(f'{channel} is live!')
+                dm_channel = await self.__bot.fetch_channel(730953382935920745)
+                await self.twitch(ctx=dm_channel, streamer=channel)
+                self.__followed_channels.remove(channel)
+
+        if not self.__followed_channels:
+            print('Ending task')
+            self.twitch_notifier.cancel()
+
+
+    @twitch_notifier.before_loop
+    async def before_printer(self):
+        await self.__bot.wait_until_ready()

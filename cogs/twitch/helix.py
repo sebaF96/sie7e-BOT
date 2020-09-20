@@ -15,7 +15,7 @@ def get_stream_info(streamer_channel):
     r = requests.get(Constants.HELIX_BASE_URL.value + f'streams?user_login={streamer_channel}', headers=HEADERS)
     data = json.loads(r.text)['data'][0]
     data['thumbnail_url'] = data['thumbnail_url'].replace('{width}', '388').replace('{height}', '219')
-    #  print(data['thumbnail_url'].replace('{width}', '388').replace('{height}', '219'))
+
     return data
 
 
@@ -41,7 +41,6 @@ class LiveStream:
         self.__game_id = stream_info['game_id']
         self.__game_name = get_game_info(self.__game_id)[0]
         self.__game_photo_url = get_game_info(self.__game_id)[1]
-
 
     @property
     def url(self):
@@ -77,19 +76,11 @@ class LiveStream:
 
 
 def is_live(streamer_channel: str) -> bool:
-    response = requests.get(Constants.HELIX_BASE_URL.value + f'search/channels?query={streamer_channel}&first=1',
-                            headers=HEADERS)
+    response = requests.get(Constants.HELIX_BASE_URL.value + f'search/channels?query={streamer_channel}&first=1', headers=HEADERS)
+    response = json.loads(response.text)['data']
 
-    response = json.loads(response.text)['data'][0]
+    # In case the channel does not exist
+    if len(response) == 0:
+        return False
 
-    return response['is_live']
-
-
-if __name__ == '__main__':
-    channel = input('Channel name: ')
-    stream = LiveStream(channel)
-
-    print(stream.title)
-    print(stream.game_name)
-    print(stream.channel_photo_url)
-    print(stream.thumbnail_url)
+    return response[0]['is_live']
