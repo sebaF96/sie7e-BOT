@@ -8,7 +8,7 @@ class Twitch(commands.Cog):
 
     def __init__(self, bot):
         self.__bot = bot
-        self.__followed_channels = ['pancho_toni', 'coscu', 'duendepablo', 'goncho']
+        self.__followed_channels = ['pancho_toni']
         self.twitch_notifier.start()
 
 
@@ -28,18 +28,23 @@ class Twitch(commands.Cog):
             #  embed.add_field(name="Viewers", value=stream.viewers, inline=False)
             #  embed.add_field(name="En vivo desde", value="Hoy 10:28", inline=False)
             embed.set_image(url=stream.thumbnail_url)
+            embed.set_footer(text='Cortesia de sie7e-BOT', icon_url=Constants.FOOTER_IMAGE_URL.value)
 
-            await ctx.send(embed=embed)
+            content = f"Che @everyone vayan a ver al {streamer} que esta stremeando breo"
+
+            await ctx.send(content=content, embed=embed)
 
     @tasks.loop(minutes=10.0)
     async def twitch_notifier(self):
 
-        for channel in self.__followed_channels:
-            if helix.is_live(channel):
-                print(f'{channel} is live!')
-                dm_channel = await self.__bot.fetch_channel(730953382935920745)
-                await self.twitch(ctx=dm_channel, streamer=channel)
-                self.__followed_channels.remove(channel)
+        for streamer in self.__followed_channels:
+            if helix.is_live(streamer):
+                print(f'{streamer} is live!')
+
+                # DotA 2 guild's general channel
+                discord_channel = await self.__bot.fetch_channel(755095399680704605)
+                await self.twitch(ctx=discord_channel, streamer=streamer)
+                self.__followed_channels.remove(streamer)
 
         if not self.__followed_channels:
             print('Ending task')
@@ -47,5 +52,5 @@ class Twitch(commands.Cog):
 
 
     @twitch_notifier.before_loop
-    async def before_printer(self):
+    async def before_notifier(self):
         await self.__bot.wait_until_ready()
