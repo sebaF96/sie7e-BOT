@@ -27,12 +27,15 @@ class Twitch(commands.Cog):
             embed.add_field(name="Jugando a", value=stream.game_name, inline=False)
             #  embed.add_field(name="Viewers", value=stream.viewers, inline=False)
             #  embed.add_field(name="En vivo desde", value="Hoy 10:28", inline=False)
-            embed.set_image(url=stream.thumbnail_url)
-            embed.set_footer(text='Cortesia de sie7e-BOT', icon_url=Constants.FOOTER_IMAGE_URL.value)
+            embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
+
+            helix.download_image(stream.thumbnail_url)
+            file = discord.File("cogs/twitch/twitch.jpg", filename="twitch.jpg")
+            embed.set_image(url="attachment://twitch.jpg")
 
             content = f"Che @everyone vayan a ver al {streamer} que esta stremeando breo"
 
-            await ctx.send(content=content, embed=embed)
+            await ctx.send(embed=embed, file=file, content=content)
 
     @tasks.loop(minutes=10.0)
     async def twitch_notifier(self):

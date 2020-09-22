@@ -1,9 +1,19 @@
 import requests
 import json
 import os
+import shutil
 from constants import Constants
 
 HEADERS = {'client-id': os.getenv('TWITCH_CLIENT'), 'Authorization': f"Bearer {os.getenv('TWITCH_OAUTH')}"}
+
+
+def download_image(image_url: str):
+    filename = 'cogs/twitch/twitch.jpg'
+    r = requests.get(image_url, stream=True)
+    r.raw.decode_content = True
+
+    with open(filename, 'wb') as f:
+        shutil.copyfileobj(r.raw, f)
 
 
 def get_profile_image(streamer_channel):

@@ -6,3 +6,4 @@ cogs/dota/last_medal.png
 .env
 boot.sh
 cogs/twitch/generate_oauth.py
+cogs/twitch/twitch.jpg
