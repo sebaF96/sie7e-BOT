@@ -47,10 +47,12 @@ class Information(commands.Cog):
         member_statuses = f""":green_circle: {online} :yellow_circle: {idle} :red_circle: {do_not_disturb} :white_circle: {offline}"""
 
         embed = discord.Embed(colour=discord.Colour.orange())
+        embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
         embed.add_field(name='Server information', value=server_info, inline=False)
         embed.add_field(name="Channels count", value=channels_count, inline=False)
         embed.add_field(name="Members count", value=member_counts, inline=False)
         embed.add_field(name="Members statuses", value=member_statuses, inline=False)
+        embed.set_footer(text=Constants.FOOTER_TEXT.value, icon_url=Constants.FOOTER_IMAGE_URL.value)
 
         embed.set_thumbnail(url=None or ctx.guild.icon_url)
 
