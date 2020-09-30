@@ -8,7 +8,7 @@ class Twitch(commands.Cog):
 
     def __init__(self, bot):
         self.__bot = bot
-        self.__followed_channels = ['pancho_toni']
+        self.__followed_channels = ['pancho_toni', 'shasho14']
         self.twitch_notifier.start()
 
 
