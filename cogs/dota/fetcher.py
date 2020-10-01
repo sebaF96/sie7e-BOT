@@ -1,7 +1,7 @@
 import json
 import requests
 import time
-from multiprocessing import Queue, Process
+from multiprocessing import Queue, Process, Pool
 from cogs.dota.dota_models import Last, Total, Avg, Stats, Records
 from constants import Fetcher as FConstants
 
@@ -236,33 +236,21 @@ def total(player_id: int) -> Total:
     return total_obj
 
 
-def fetch_wins(player_id, queue, date):
+def fetch_wins(player_id, date):
     r = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl?date=' + date)
     wins = json.loads(r.text)["win"]
 
     try:
         player_name = get_nick(player_id)
-        queue.put((player_name, str(wins)))
+        return player_name, str(wins)
     except KeyError:
         pass
 
 
 def wins_rank(players: dict, daily=False) -> str:
     date = "7" if not daily else "1"
-    processes_list = []
-    rank_list = []
-    queue = Queue()
-
-    for player in players:
-        process = Process(target=fetch_wins, args=(players[player], queue, date))
-        process.start()
-        processes_list.append(process)
-
-    for p in processes_list:
-        p.join()
-
-    while not queue.empty():
-        rank_list.append(queue.get())
+    pool = Pool(processes=4)
+    rank_list = [pool.apply(fetch_wins, args=(player_id, date)) for player_id in players.values()]
 
     rank_list.sort(key=lambda t: int(t[1]), reverse=True)
 
