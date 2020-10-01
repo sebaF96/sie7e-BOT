@@ -236,7 +236,7 @@ def total(player_id: int) -> Total:
     return total_obj
 
 
-def fetch_wins(player_id, date):
+def fetch_wins(player_id, date="7"):
     r = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/wl?date=' + date)
     wins = json.loads(r.text)["win"]
 
@@ -250,7 +250,7 @@ def fetch_wins(player_id, date):
 def wins_rank(players: dict, daily=False) -> str:
     date = "7" if not daily else "1"
     pool = Pool(processes=4)
-    rank_list = [pool.apply(fetch_wins, args=(player_id, date)) for player_id in players.values()]
+    rank_list = pool.map(fetch_wins, players.values())
 
     rank_list.sort(key=lambda t: int(t[1]), reverse=True)
 
