@@ -3,7 +3,7 @@ import os
 
 
 class Constants(Enum):
-    FOOTER_TEXT = "Cortesia de sie7e-BOT"
+    FOOTER_TEXT = "sie7e-BOT"
     FOOTER_IMAGE_URL = "https://steamcdn-a.akamaihd.net/apps/dota2/images/heroes/rattletrap_icon.png"
     PLAYER_NOT_RECOGNIZED = "Ni idea quien es ese. Tira !players para ver los que conozco"
     PRIVATE_PROFILE = "Tiene el perfil privado esa caquita"
