@@ -33,7 +33,7 @@ class Twitch(commands.Cog):
             file = discord.File("cogs/twitch/twitch.jpg", filename="twitch.jpg")
             embed.set_image(url="attachment://twitch.jpg")
 
-            await ctx.send(embed=embed, file=file, delete_afer=12600)
+            await ctx.send(embed=embed, file=file, delete_after=12600)
 
     @tasks.loop(minutes=10.0)
     async def twitch_notifier(self):
