@@ -25,7 +25,7 @@ if __name__ == '__main__':
     bot.add_cog(Events(bot))
     bot.add_cog(Dota2(bot))
     bot.add_cog(AmongUS(bot))
-    # bot.add_cog(Twitch(bot))
+    bot.add_cog(Twitch(bot))
     bot.add_cog(Information(bot))
     bot.add_cog(Misc(bot, start_time=int(time.time())))
 
