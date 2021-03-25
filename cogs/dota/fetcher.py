@@ -123,8 +123,8 @@ def stats(player_id: int) -> Stats:
     for i in range(0, 5, 1):
         match = recent_matches[i]
         radiant = is_radiant(match["player_slot"])
-        result = ":green_circle:   Gano" if radiant == match["radiant_win"] else ":red_circle:   Perdio"
-        string = f"{result} con {HERO_DICT[match['hero_id']]} y salio {match['kills']}/{match['deaths']}/{match['assists']}"
+        result = ":green_circle:   " if radiant == match["radiant_win"] else ":red_circle:   "
+        string = f"{result} {HERO_DICT[match['hero_id']]} ({match['kills']}/{match['deaths']}/{match['assists']})"
 
         games.append(string)
 
