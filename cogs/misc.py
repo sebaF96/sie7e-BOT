@@ -26,7 +26,7 @@ class Misc(commands.Cog):
         await ctx.message.delete(delay=0.1)
         await ctx.send(f"{msg}")
 
-    @commands.is_owner()
+    @commands.has_role('@moderator')
     @commands.guild_only()
     @commands.command(aliases=['purge', 'clear'])
     async def _purge(self, ctx, limit: int = 20):
