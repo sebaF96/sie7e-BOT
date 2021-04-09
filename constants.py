@@ -15,6 +15,9 @@ class Constants(Enum):
     HELIX_BASE_URL = "https://api.twitch.tv/helix/"
     TWITCH_LOGO_URL = "https://assets.stickpng.com/thumbs/580b57fcd9996e24bc43c540.png"
 
+    FREDBOAT_PREFIX = ";;"
+    FREDBOAT_ID = 184405311681986560
+
     HELP_COMMANDS = {"!serverinfo": "muestra informacion acerca del servidor",
                      "!userinfo <user>": "muestra informacion tuya o del usuario que mencionas con @",
                      "!stats <player>": "muestra las ultimas 5 partidas de ese player",

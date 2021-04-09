@@ -1,7 +1,8 @@
 import discord
 import datetime
-import asyncio
+import os
 from discord.ext import commands
+from constants import Constants
 
 
 class Events(commands.Cog):
@@ -40,11 +41,17 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        pass
-
         """
         channel = member.guild.system_channel
         cog = self.__bot.get_cog('Information')
         await asyncio.sleep(10)
         await cog.userinfo(ctx=channel, member=member)
         """
+        pass
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if not message.guild or not str(message.guild.id) == os.getenv("DOTA2_GUILD_ID"):
+            return
+        elif message.content.startswith(";;") or message.author.id == Constants.FREDBOAT_ID.value:
+            await message.delete(delay=420)
