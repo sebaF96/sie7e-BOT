@@ -116,8 +116,8 @@ def format_time_ago(timestamp):
 def stats(player_id: int) -> Stats:
     response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-
-    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
+    # 4 is single draft, 22 all draft 
+    recent_matches = [m for m in recent_matches if m["game_mode"] in [4, 22]]
     games = []
 
     for i in range(0, 5, 1):
@@ -175,7 +175,8 @@ def get_build(match_id: int, player_slot: int) -> list:
 def last(player_id: int) -> Last:
     response = requests.get(FConstants.API_PLAYERS_URL.value + str(player_id) + '/recentMatches')
     recent_matches = json.loads(response.text)
-    recent_matches = [m for m in recent_matches if m["game_mode"] == 22]  # 22 is ranked
+    # 4 is single draft, 22 all draft
+    recent_matches = [m for m in recent_matches if m["game_mode"] in [4, 22]]
     match = recent_matches[0]
     radiant = is_radiant(match['player_slot'])
 
